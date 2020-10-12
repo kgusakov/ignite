@@ -9580,7 +9580,11 @@ public abstract class IgniteUtils {
 
             if (!F.isEmpty(hostName)) {
                 try {
-                    inetAddr = InetAddress.getByName(hostName);
+                    if (IgniteSystemProperties.getBoolean(IgniteSystemProperties.IGNITE_TEST_ENV)) {
+                        String ipString = hostName.substring(0, hostName.length() - ".hostname".length());
+                        inetAddr = InetAddress.getByAddress(hostName, InetAddress.getByName(ipString).getAddress());
+
+                    } else inetAddr = InetAddress.getByName(hostName);
                 }
                 catch (UnknownHostException ignored) {
                 }
@@ -9588,7 +9592,9 @@ public abstract class IgniteUtils {
 
             if (inetAddr == null || inetAddr.isLoopbackAddress()) {
                 try {
-                    inetAddr = InetAddress.getByName(addr);
+                    if (IgniteSystemProperties.getBoolean(IgniteSystemProperties.IGNITE_TEST_ENV))
+                        inetAddr = InetAddress.getByAddress(addr + ".hostname", InetAddress.getByName(addr).getAddress());
+                    else inetAddr = InetAddress.getByName(addr);
                 }
                 catch (UnknownHostException ignored) {
                 }
@@ -11798,12 +11804,13 @@ public abstract class IgniteUtils {
         }
     }
 
+
     /**
      * Special wrapper over address that can be sorted in following order:
      *     IPv4, private IPv4, IPv4 local host, IPv6.
      *     Lower addresses first.
      */
-    private static class SortableAddress implements Comparable<SortableAddress> {
+    public static class SortableAddress implements Comparable<SortableAddress> {
         /**
          *
          */
@@ -11824,7 +11831,7 @@ public abstract class IgniteUtils {
          *
          * @param addr Address as string.
          */
-        private SortableAddress(String addr) {
+        public SortableAddress(String addr) {
             this.addr = addr;
 
             if (addr.indexOf(':') > 0)

@@ -1041,7 +1041,7 @@ public class CommandHandlerParsingTest {
                 continue;
 
             assertFalse(cmd.toString(), parseArgs(singletonList(cmd.text())).verbose());
-            assertTrue(cmd.toString(), parseArgs(asList(cmd.text(), CMD_VERBOSE)).verbose());
+            assertTrue(cmd.toString(), parseArgs(asList(CMD_VERBOSE, cmd.text())).verbose());
         }
     }
 
