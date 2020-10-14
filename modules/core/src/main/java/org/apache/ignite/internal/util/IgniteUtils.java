@@ -11804,7 +11804,6 @@ public abstract class IgniteUtils {
         }
     }
 
-
     /**
      * Special wrapper over address that can be sorted in following order:
      *     IPv4, private IPv4, IPv4 local host, IPv6.
