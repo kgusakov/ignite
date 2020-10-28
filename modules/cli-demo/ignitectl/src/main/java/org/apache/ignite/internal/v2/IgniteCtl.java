@@ -24,6 +24,8 @@ import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
 import picocli.CommandLine;
 
+import io.micronaut.configuration.picocli.PicocliRunner;
+
 /**
  *
  */
@@ -32,7 +34,8 @@ import picocli.CommandLine;
     subcommands = {ShellCommand.class})
 public class IgniteCtl implements Runnable {
     public LineReaderImpl reader;
-    public PrintWriter out = new PrintWriter(System.out);
+    public PrintWriter out = new PrintWriter(System.out, true);
+    public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     public static void main(String... args) {
         CommandLine cli = new CommandLine(new IgniteCtl());
@@ -41,8 +44,7 @@ public class IgniteCtl implements Runnable {
     }
 
     @Override public void run() {
-        out.println(new CommandLine(this).getUsageMessage());
-        out.flush();
+        throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
     }
 
     public void setReader(LineReader reader){

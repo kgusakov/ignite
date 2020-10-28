@@ -28,6 +28,7 @@
     <version>8.8.127-SNAPSHOT</version>
     <url>http://ignite.apache.org</url>
     <packaging>pom</packaging>
+    <name>ignite-cli-demo</name>
 
     <modules>
         <module>ignitectl</module>

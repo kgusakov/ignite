@@ -28,13 +28,10 @@
         <version>8.8.127-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cc-demo-module</artifactId>
+    <artifactId>demo-module</artifactId>
     <version>8.8.127-SNAPSHOT</version>
     <url>http://ignite.apache.org</url>
-
-    <properties>
-        <ignite.update.notifier.product>apache-ignite</ignite.update.notifier.product>
-    </properties>
+    <name>demo-module</name>
 
     <dependencies>
         <dependency>
