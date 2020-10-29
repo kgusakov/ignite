@@ -1,2 +1,3 @@
 org.apache.ignite.internal.v2.builtins.BaselineCommand
 org.apache.ignite.internal.v2.builtins.InitIgniteCommand
+org.apache.ignite.internal.v2.builtins.NodeCommand

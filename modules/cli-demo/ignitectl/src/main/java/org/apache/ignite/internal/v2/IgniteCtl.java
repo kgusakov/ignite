@@ -34,7 +34,6 @@ import io.micronaut.configuration.picocli.PicocliRunner;
     subcommands = {ShellCommand.class})
 public class IgniteCtl implements Runnable {
     public LineReaderImpl reader;
-    public PrintWriter out = new PrintWriter(System.out, true);
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     public static void main(String... args) {
@@ -49,7 +48,6 @@ public class IgniteCtl implements Runnable {
 
     public void setReader(LineReader reader){
         this.reader = (LineReaderImpl) reader;
-        out = reader.getTerminal().writer();
     }
 
     public static void loadSubcommands(CommandLine commandLine) {

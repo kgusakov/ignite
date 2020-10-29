@@ -20,18 +20,17 @@ import static org.apache.ignite.internal.v2.Const.VERSION;
     description = "Init ignite directories and download current version")
 public class InitIgniteCommand implements Runnable, IgniteCommand {
 
-    @CommandLine.ParentCommand
-    private IgniteCtl parent;
+    @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     private final SystemPathResolver pathResolver;
 
     @Override public void run() {
-        parent.out.println("Init ignite directories...");
+        spec.commandLine().getOut().println("Init ignite directories...");
         Dirs dirs = initDirectories();
-        parent.out.println("Installing ignite core...");
+        spec.commandLine().getOut().println("Installing ignite core...");
         installIgnite(SystemPathResolver.osIndependentPath(dirs.binDir, VERSION, "libs"));
-        parent.out.println("Download current ignite version...");
-        parent.out.println("Apache Ignite version " + VERSION + " sucessfully installed");
+        spec.commandLine().getOut().println("Download current ignite version...");
+        spec.commandLine().getOut().println("Apache Ignite version " + VERSION + " sucessfully installed");
     }
 
     public InitIgniteCommand() {

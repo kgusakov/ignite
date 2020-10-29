@@ -20,13 +20,23 @@ import org.apache.ignite.internal.v2.IgniteCommand;
 import org.apache.ignite.internal.v2.IgniteCtl;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "baseline", mixinStandardHelpOptions = true,
-    description = "Baseline actions")
-public class BaselineCommand implements IgniteCommand {
+@CommandLine.Command(name = "node", mixinStandardHelpOptions = true,
+    description = "Node actions", subcommands = {NodeCommand.StartNodeCommand.class})
+public class NodeCommand implements IgniteCommand {
 
-    @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+    public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     @Override public void run() {
-        this.spec.commandLine().getOut().println("baseline collect by default executed");
+        throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
+    }
+
+    @CommandLine.Command(name = "start", mixinStandardHelpOptions = true, description = "Start Ignite node")
+    public static class StartNodeCommand implements Runnable {
+
+        @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+
+        @Override public void run() {
+            spec.commandLine().getOut().println("start ignite node");
+        }
     }
 }
