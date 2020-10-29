@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.constraints.NotNull;
+import org.apache.ignite.internal.installer.MavenArtifactResolver;
+import org.apache.ignite.internal.v2.Const;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.IgniteCommand;
 import org.apache.ignite.internal.v2.IgniteCtl;
@@ -27,7 +30,8 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
 
     @Override public void run() {
         parent.out.println("Init ignite directories...");
-        initDirectories();
+        Dirs dirs = initDirectories();
+        installIgnite(osIndependentPath(dirs.binDir, VERSION, "libs"));
         parent.out.println("Download current ignite version...");
         parent.out.println("Apache Ignite version " + VERSION + " sucessfully installed");
     }
@@ -40,7 +44,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
         this.pathResolver = pathResolver;
     }
 
-    private void initDirectories() {
+    private Dirs initDirectories() {
         File configFile = initConfigFile();
         Dirs dirs = readConfigFile(configFile);
 
@@ -59,6 +63,17 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
         if (!(igniteBinCli.exists() || igniteBinCli.mkdirs()))
             throw new IgniteCLIException("Can't create a directory for cli modules: " + igniteBinCliPath);
 
+        return dirs;
+
+    }
+
+    private void installIgnite(String path) {
+        try {
+            new MavenArtifactResolver().resolve(Paths.get(path), Const.IGNITE_GROUP_ID, Const.IGNITE_ARTIFACT_ID, VERSION);
+        }
+        catch (IOException e) {
+            throw new IgniteCLIException("Can't download core ignite artifact", e);
+        }
     }
 
     private File initConfigFile() {

@@ -6,4 +6,8 @@ public class IgniteCLIException extends RuntimeException {
     public IgniteCLIException(String message) {
         super(message);
     }
+
+    public IgniteCLIException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
