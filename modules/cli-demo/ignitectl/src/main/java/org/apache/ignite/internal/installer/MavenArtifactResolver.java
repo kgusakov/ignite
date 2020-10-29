@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.stream.Collectors;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ivy.Ivy;
 import org.apache.ivy.core.module.descriptor.DefaultDependencyDescriptor;
 import org.apache.ivy.core.module.descriptor.DefaultModuleDescriptor;
@@ -33,12 +34,24 @@ import org.apache.ivy.core.resolve.ResolveOptions;
 import org.apache.ivy.core.retrieve.RetrieveOptions;
 import org.apache.ivy.core.retrieve.RetrieveReport;
 import org.apache.ivy.core.settings.IvySettings;
+import org.apache.ivy.plugins.resolver.ChainResolver;
 import org.apache.ivy.plugins.resolver.IBiblioResolver;
 
 /**
  *
  */
 public class MavenArtifactResolver {
+
+    private final SystemPathResolver pathResolver;
+
+    public MavenArtifactResolver(SystemPathResolver pathResolver) {
+        this.pathResolver = pathResolver;
+    }
+
+    public MavenArtifactResolver() {
+        pathResolver = new SystemPathResolver.DefaultPathResolver();
+    }
+
     public ResolveResult resolve(
         Path mavenRoot,
         String grpId,
@@ -53,6 +66,8 @@ public class MavenArtifactResolver {
         ivySettings.setDefaultCache(tmpDir);
         ivySettings.setDefaultCacheArtifactPattern("[artifact](-[classifier]).[revision].[ext]");
 
+        ChainResolver chainResolver = new ChainResolver();
+        chainResolver.setName("chainResolver");
         // use the biblio resolver, if you consider resolving
         // POM declared dependencies
         IBiblioResolver br = new IBiblioResolver();
@@ -60,8 +75,17 @@ public class MavenArtifactResolver {
         br.setUsepoms(true);
         br.setName("central");
 
-        ivySettings.addResolver(br);
-        ivySettings.setDefaultResolver(br.getName());
+        chainResolver.add(br);
+
+        IBiblioResolver localBr = new IBiblioResolver();
+        localBr.setM2compatible(true);
+        localBr.setUsepoms(true);
+        localBr.setRoot("file://" + SystemPathResolver.osIndependentPath(pathResolver.osHomeDirectoryPath(), ".m2", "repository/"));
+        localBr.setName("local");
+        chainResolver.add(localBr);
+
+        ivySettings.addResolver(chainResolver);
+        ivySettings.setDefaultResolver(chainResolver.getName());
 
         Ivy ivy = Ivy.newInstance(ivySettings);
 

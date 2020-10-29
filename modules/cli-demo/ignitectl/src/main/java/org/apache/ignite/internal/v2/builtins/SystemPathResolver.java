@@ -1,5 +1,8 @@
 package org.apache.ignite.internal.v2.builtins;
 
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import javax.validation.constraints.NotNull;
 import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
 import org.apache.ignite.internal.v2.IgniteCLIException;
@@ -14,6 +17,14 @@ public interface SystemPathResolver {
     String osHomeDirectoryPath();
 
     String osCurrentDirPath();
+
+    static String osIndependentPath(@NotNull String path, String... others) {
+        Path startPath = FileSystems.getDefault().getPath(path);
+        for (String p: others) {
+            startPath = FileSystems.getDefault().getPath(startPath.toString(), FileSystems.getDefault().getPath(p).toString());
+        }
+        return startPath.toString();
+    }
 
     /**
      *
