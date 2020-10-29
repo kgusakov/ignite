@@ -31,13 +31,13 @@ import io.micronaut.configuration.picocli.PicocliRunner;
  */
 @CommandLine.Command(name = "ignitectl", mixinStandardHelpOptions = true,
     description = "Control utility for Apache Ignite",
-    subcommands = {ShellCommand.class})
+    versionProvider = VersionProvider.class)
 public class IgniteCtl implements Runnable {
     public LineReaderImpl reader;
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     public static void main(String... args) {
-        CommandLine cli = new CommandLine(new IgniteCtl());
+        CommandLine cli = new CommandLine(new IgniteCtl()).addSubcommand(ShellCommand.class);
         loadSubcommands(cli);
         System.exit(cli.execute(args));
     }

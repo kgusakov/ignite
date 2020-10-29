@@ -3,8 +3,6 @@ package org.apache.ignite.internal.v2.builtins;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import javax.validation.constraints.NotNull;
-import net.harawata.appdirs.AppDirs;
-import net.harawata.appdirs.AppDirsFactory;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 
 public interface SystemPathResolver {
@@ -30,8 +28,6 @@ public interface SystemPathResolver {
      *
      */
     class DefaultPathResolver implements SystemPathResolver {
-
-        private final AppDirs appDirs = AppDirsFactory.getInstance();
 
         private static final String APP_NAME = "ignite";
 
