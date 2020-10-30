@@ -20,9 +20,13 @@ import picocli.CommandLine;
 
 public class VersionProvider implements CommandLine.IVersionProvider {
 
-    public VersionProvider() {}
+    private final Info info;
+
+    public VersionProvider() {
+        this.info = new Info();
+    }
 
     @Override public String[] getVersion() throws Exception {
-        return new String[] {Const.VERSION};
+        return new String[] {info.version};
     }
 }

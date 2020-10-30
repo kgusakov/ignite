@@ -70,17 +70,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli-shell-jline3</artifactId>
-            <version>4.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline</artifactId>
-            <version>3.16.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-console</artifactId>
-            <version>3.16.0</version>
+            <version>4.5.2</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
@@ -92,11 +82,16 @@
             <artifactId>picocli</artifactId>
             <version>${picocli.version}</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.micronaut.configuration</groupId>-->
+<!--            <artifactId>micronaut-picocli</artifactId>-->
+<!--            <scope>compile</scope>-->
+<!--            <version>1.2.1</version>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>io.micronaut.configuration</groupId>
-            <artifactId>micronaut-picocli</artifactId>
-            <scope>compile</scope>
-            <version>1.2.1</version>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>16.0.3</version>
         </dependency>
     </dependencies>
 
@@ -129,8 +124,8 @@
                     <compilerArgs>
                         <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
                     </compilerArgs>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>9</source>
+                    <target>9</target>
                 </configuration>
             </plugin>
 

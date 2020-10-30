@@ -2,7 +2,7 @@ package org.apache.ignite.internal.v2.builtins;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import javax.validation.constraints.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 
 public interface SystemPathResolver {

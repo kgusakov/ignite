@@ -17,14 +17,10 @@
 
 package org.apache.ignite.internal.v2;
 
-import java.io.PrintWriter;
 import java.util.ServiceLoader;
-import org.apache.ignite.internal.v2.builtins.BaselineCommand;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
 import picocli.CommandLine;
-
-import io.micronaut.configuration.picocli.PicocliRunner;
 
 /**
  *
