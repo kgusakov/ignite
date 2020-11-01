@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.installer.MavenArtifactResolver;
+import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import picocli.CommandLine;
@@ -24,7 +24,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
 
     @Override public void run() {
         spec.commandLine().getOut().println("Init ignite directories...");
-        Dirs dirs = initDirectories();
+        Config dirs = initDirectories();
         spec.commandLine().getOut().println("Installing ignite core...");
         installIgnite(SystemPathResolver.osIndependentPath(dirs.binDir, info.version, "libs"));
         spec.commandLine().getOut().println("Download current ignite version...");
@@ -41,9 +41,9 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
         this.info = info;
     }
 
-    private Dirs initDirectories() {
+    private Config initDirectories() {
         File configFile = initConfigFile();
-        Dirs dirs = readConfigFile(configFile);
+        Config dirs = Config.readConfigFile(configFile);
 
         File igniteWork = new File(dirs.workDir);
         if (!(igniteWork.exists() || igniteWork.mkdirs()))
@@ -74,7 +74,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
     }
 
     private File initConfigFile() {
-        Optional<File> configFile = searchConfigPath();
+        Optional<File> configFile = Config.searchConfigPath(pathResolver);
         if (!configFile.isPresent()) {
             String newCfgPath = SystemPathResolver.osIndependentPath(pathResolver.osCurrentDirPath(), ".ignitecfg");
             File newCfgFile = new File(newCfgPath);
@@ -93,53 +93,12 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
             return configFile.get();
     }
 
-    private Dirs readConfigFile(File configFile) {
-        try {
-            List<String> lines = Files.readAllLines(configFile.toPath());
-            if (lines.size() != 2)
-                throw new IgniteCLIException("Config file has wrong format. " +
-                    "It must contain correct paths to bin and word dirs, newline separated");
-            return new Dirs(lines.get(0), lines.get(1));
-        }
-        catch (IOException e) {
-            throw new IgniteCLIException("Can't read config file");
-        }
-    }
-
     private void fillNewConfigFile(File f, String binDir, String workDir) {
         try {
             Files.write(f.toPath(), Arrays.asList(binDir, workDir));
         }
         catch (IOException e) {
             throw new IgniteCLIException("Can't write to ignitecfg file");
-        }
-    }
-
-    private Optional<File> searchConfigPath() {
-        File cfgCurrentDir = new File(SystemPathResolver.osIndependentPath(pathResolver.osCurrentDirPath(), ".ignitecfg"));
-        if (cfgCurrentDir.exists())
-            return Optional.of(cfgCurrentDir);
-
-        File homeDirCfg = new File(SystemPathResolver.osIndependentPath(pathResolver.osHomeDirectoryPath(), ".ignitecfg"));
-        if (homeDirCfg.exists())
-            return Optional.of(homeDirCfg);
-
-        File globalDirCfg = new File(SystemPathResolver.osIndependentPath(pathResolver.osgGlobalConfigPath(), "ignite", "ignitecfg"));
-        if (globalDirCfg.exists())
-            return Optional.of(globalDirCfg);
-
-        return Optional.empty();
-
-        
-    }
-
-    private static class Dirs {
-        public final String binDir;
-        public final String workDir;
-
-        public Dirs(String binDir, String workDir) {
-            this.binDir = binDir;
-            this.workDir = workDir;
         }
     }
 

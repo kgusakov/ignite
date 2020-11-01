@@ -99,6 +99,21 @@ public class ShellCommand implements Runnable {
                 try {
                     systemRegistry.cleanUp();
                     line = reader.readLine(prompt, rightPrompt, (MaskingCallback) null, null);
+
+                    // TODO: slow dirty hack for reload
+                    {
+                        commands = new IgniteCtl();
+                        cmd = new CommandLine(commands);
+                        loadSubcommands(cmd);
+                        picocliCommands = new PicocliCommands(workDir(), cmd) {
+                            @Override
+                            public Object invoke(CommandSession ses, String cmd, Object... args) throws Exception {
+                                return execute(ses, cmd, (String[])args);
+                            }
+                        };
+                        systemRegistry.setCommandRegistries(picocliCommands);
+                    }
+
                     systemRegistry.execute(line);
                 } catch (UserInterruptException e) {
                     // Ignore

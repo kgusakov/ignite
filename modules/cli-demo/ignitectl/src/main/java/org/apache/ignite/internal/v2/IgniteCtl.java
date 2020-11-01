@@ -48,7 +48,9 @@ public class IgniteCtl implements Runnable {
     }
 
     public static void loadSubcommands(CommandLine commandLine) {
-        for (IgniteCommand igniteCommand: ServiceLoader.load(IgniteCommand.class)) {
+        ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class);
+        loader.reload();
+        for (IgniteCommand igniteCommand: loader) {
             commandLine.addSubcommand(igniteCommand);
         }
     }
