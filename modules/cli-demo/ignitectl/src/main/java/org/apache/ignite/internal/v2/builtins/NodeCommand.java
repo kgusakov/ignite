@@ -16,13 +16,12 @@
 
 package org.apache.ignite.internal.v2.builtins;
 
-import org.apache.ignite.internal.v2.IgniteCommand;
-import org.apache.ignite.internal.v2.IgniteCtl;
+import org.apache.ignite.cli.common.IgniteCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "node", mixinStandardHelpOptions = true,
     description = "Node actions", subcommands = {NodeCommand.StartNodeCommand.class})
-public class NodeCommand implements IgniteCommand {
+public class NodeCommand implements IgniteCommand, Runnable {
 
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 

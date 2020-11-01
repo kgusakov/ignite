@@ -18,6 +18,7 @@
 package org.apache.ignite.internal.v2;
 
 import java.util.ServiceLoader;
+import org.apache.ignite.cli.common.IgniteCommand;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
 import picocli.CommandLine;

@@ -7,10 +7,10 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.IgniteCLIException;
-import org.apache.ignite.internal.v2.IgniteCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "install",

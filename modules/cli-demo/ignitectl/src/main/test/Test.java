@@ -14,7 +14,18 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.v2;
+import java.io.IOException;
+import java.nio.file.Paths;
+import org.apache.ignite.internal.installer.MavenArtifactResolver;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
-public interface IgniteCommand extends Runnable {
+public class Test {
+
+    @org.junit.Test
+    public void test() throws IOException {
+        System.out.println("ok");
+        SystemPathResolver pathResolver = new SystemPathResolver.DefaultPathResolver();
+        new MavenArtifactResolver(pathResolver).resolveDeps(
+            Paths.get("/tmp/packages/module/"), Paths.get("/tmp/packages/cli/"), "org.apache.ignite", "ignite-demo-module-all", "2.10.0-SNAPSHOT");
+    }
 }
