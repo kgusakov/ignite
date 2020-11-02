@@ -49,7 +49,7 @@ public class ModuleCommand implements IgniteCommand, Runnable {
         @Override public void run() {
             Optional<File> configFile = Config.searchConfigPath(pathResolver);
             if (!configFile.isPresent())
-                throw new IgniteCLIException("Can't find config file. Looks like you should run 'install' command first");
+                throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
             Config config = Config.readConfigFile(configFile.get());
             String[] coords = mavenCoordinates.split(":");
 

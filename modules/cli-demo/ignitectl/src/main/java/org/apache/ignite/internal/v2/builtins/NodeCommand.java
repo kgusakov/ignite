@@ -16,10 +16,15 @@
 
 package org.apache.ignite.internal.v2.builtins;
 
+import java.io.File;
+import java.util.Optional;
 import org.apache.ignite.cli.common.IgniteCommand;
+import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.IgniteCLIException;
+import org.w3c.dom.Node;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "node", mixinStandardHelpOptions = true,
+@CommandLine.Command(name = "node",
     description = "Node actions", subcommands = {NodeCommand.StartNodeCommand.class})
 public class NodeCommand implements IgniteCommand, Runnable {
 
@@ -29,12 +34,25 @@ public class NodeCommand implements IgniteCommand, Runnable {
         throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
     }
 
-    @CommandLine.Command(name = "start", mixinStandardHelpOptions = true, description = "Start Ignite node")
+    @CommandLine.Command(name = "start", description = "Start Ignite node")
     public static class StartNodeCommand implements Runnable {
 
         @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
+        @CommandLine.Parameters(paramLabel = "consistent-id", description = "ConsistentId for new node")
+        public String consistentId;
+
+        private final SystemPathResolver pathResolver;
+
+        public StartNodeCommand() {
+            pathResolver = new SystemPathResolver.DefaultPathResolver();
+        }
+
         @Override public void run() {
+            Optional<File> configFile = Config.searchConfigPath(pathResolver);
+            if (!configFile.isPresent())
+                throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
+
             spec.commandLine().getOut().println("start ignite node");
         }
     }

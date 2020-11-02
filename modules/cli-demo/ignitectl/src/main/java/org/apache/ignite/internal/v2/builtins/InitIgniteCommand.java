@@ -16,8 +16,8 @@ import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "install",
-    description = "Init ignite directories and download current version")
+@CommandLine.Command(name = "init",
+    description = "Init ignite directories and download current version of core artifacts")
 public class InitIgniteCommand implements Runnable, IgniteCommand {
 
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;
