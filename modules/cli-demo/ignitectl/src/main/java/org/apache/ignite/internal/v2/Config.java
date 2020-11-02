@@ -1,12 +1,15 @@
 package org.apache.ignite.internal.v2;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
 public class Config {
@@ -28,12 +31,13 @@ public class Config {
     }
 
     public static Config readConfigFile(File configFile) {
-        try {
-            List<String> lines = Files.readAllLines(configFile.toPath());
-            if (lines.size() != 2)
+        try (InputStream inputStream = new FileInputStream(configFile)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            if ((properties.getProperty("bin") == null) || (properties.getProperty("work") == null))
                 throw new IgniteCLIException("Config file has wrong format. " +
-                    "It must contain correct paths to bin and word dirs, newline separated");
-            return new Config(lines.get(0), lines.get(1));
+                    "It must contain correct paths to bin and work dirs");
+            return new Config(properties.getProperty("bin"), properties.getProperty("work"));
         }
         catch (IOException e) {
             throw new IgniteCLIException("Can't read config file");

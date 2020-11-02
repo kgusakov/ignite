@@ -1,16 +1,19 @@
 package org.apache.ignite.internal.v2.builtins;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Properties;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.IgniteCLIException;
+import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "install",
@@ -93,9 +96,12 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
             return configFile.get();
     }
 
-    private void fillNewConfigFile(File f, String binDir, String workDir) {
-        try {
-            Files.write(f.toPath(), Arrays.asList(binDir, workDir));
+    private void fillNewConfigFile(File f, @NotNull  String binDir, @NotNull String workDir) {
+        try (FileWriter fileWriter = new FileWriter(f)) {
+            Properties properties = new Properties();
+            properties.setProperty("bin", binDir);
+            properties.setProperty("work", workDir);
+            properties.store(fileWriter, "");
         }
         catch (IOException e) {
             throw new IgniteCLIException("Can't write to ignitecfg file");
