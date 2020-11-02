@@ -54,7 +54,7 @@ import org.jline.widget.TailTipWidgets;
 import picocli.CommandLine;
 import picocli.shell.jline3.PicocliCommands;
 
-import static org.apache.ignite.internal.v2.IgniteCtl.loadSubcommands;
+import static org.apache.ignite.internal.v2.IgniteCli.loadSubcommands;
 
 /**
  * Top-level commands available in REPL.
@@ -64,7 +64,7 @@ import static org.apache.ignite.internal.v2.IgniteCtl.loadSubcommands;
     description = {"interactive mode"})
 public class ShellCommand implements Runnable {
     @Override public void run() {
-        IgniteCtl commands = new IgniteCtl();
+        IgniteCli commands = new IgniteCli();
         CommandLine cmd = new CommandLine(commands);
         loadSubcommands(cmd);
         PicocliCommands picocliCommands = new PicocliCommands(workDir(), cmd) {
@@ -91,7 +91,7 @@ public class ShellCommand implements Runnable {
             KeyMap<Binding> keyMap = reader.getKeyMaps().get("main");
             keyMap.bind(new Reference("tailtip-toggle"), KeyMap.alt("s"));
 
-            String prompt = "ignitectlv2> ";
+            String prompt = "ignite> ";
             String rightPrompt = null;
 
             String line;
@@ -102,7 +102,7 @@ public class ShellCommand implements Runnable {
 
                     // TODO: slow dirty hack for reload
                     {
-                        commands = new IgniteCtl();
+                        commands = new IgniteCli();
                         cmd = new CommandLine(commands);
                         loadSubcommands(cmd);
                         picocliCommands = new PicocliCommands(workDir(), cmd) {

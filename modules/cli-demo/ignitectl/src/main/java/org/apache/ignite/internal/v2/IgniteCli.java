@@ -26,15 +26,15 @@ import picocli.CommandLine;
 /**
  *
  */
-@CommandLine.Command(name = "ignitectl", mixinStandardHelpOptions = true,
+@CommandLine.Command(name = "ignite", mixinStandardHelpOptions = true,
     description = "Control utility for Apache Ignite",
     versionProvider = VersionProvider.class)
-public class IgniteCtl implements Runnable {
+public class IgniteCli implements Runnable {
     public LineReaderImpl reader;
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     public static void main(String... args) {
-        CommandLine cli = new CommandLine(new IgniteCtl()).addSubcommand(ShellCommand.class);
+        CommandLine cli = new CommandLine(new IgniteCli()).addSubcommand(ShellCommand.class);
         loadSubcommands(cli);
         System.exit(cli.execute(args));
     }
