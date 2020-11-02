@@ -1,7 +1,13 @@
 package org.apache.ignite.internal.v2.builtins;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 
@@ -22,6 +28,27 @@ public interface SystemPathResolver {
             startPath = FileSystems.getDefault().getPath(startPath.toString(), FileSystems.getDefault().getPath(p).toString());
         }
         return startPath.toString();
+    }
+
+    static Path pathOf(@NotNull String path) {
+        return FileSystems.getDefault().getPath(path);
+    }
+
+    static URL[] list(String path) {
+        try {
+            return Files.list(new File(path).toPath())
+                .map(p -> {
+                    try {
+                        return p.toUri().toURL();
+                    }
+                    catch (MalformedURLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toArray(URL[]::new);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

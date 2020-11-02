@@ -17,8 +17,16 @@
 
 package org.apache.ignite.internal.v2;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import org.apache.ignite.cli.common.IgniteCommand;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
 import picocli.CommandLine;
@@ -48,10 +56,27 @@ public class IgniteCli implements Runnable {
     }
 
     public static void loadSubcommands(CommandLine commandLine) {
-        ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class);
-        loader.reload();
-        for (IgniteCommand igniteCommand: loader) {
-            commandLine.addSubcommand(igniteCommand);
+        Optional<File> configOpt = Config.searchConfigPath(new SystemPathResolver.DefaultPathResolver());
+        if (configOpt.isPresent()) {
+            Config cfg = Config.readConfigFile(configOpt.get());
+            URL[] urls = SystemPathResolver.list(SystemPathResolver.osIndependentPath(cfg.binDir, new Info().version, "cli/"));
+            ClassLoader classLoader = new URLClassLoader(urls,
+                IgniteCli.class.getClassLoader());
+            ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class, classLoader);
+            loader.reload();
+            for (IgniteCommand igniteCommand: loader) {
+                commandLine.addSubcommand(igniteCommand);
+            }
+
         }
+        else {
+            ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class);
+            loader.reload();
+            for (IgniteCommand igniteCommand : loader) {
+                commandLine.addSubcommand(igniteCommand);
+            }
+
+        }
+
     }
 }
