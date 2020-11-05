@@ -5,7 +5,7 @@ import java.nio.file.Path;
 
 public interface PathHelpers {
 
-    static Path pathOf(String path) {
-        return FileSystems.getDefault().getPath(path);
+    static Path pathOf(String path, String... paths) {
+        return FileSystems.getDefault().getPath(path, paths);
     }
 }

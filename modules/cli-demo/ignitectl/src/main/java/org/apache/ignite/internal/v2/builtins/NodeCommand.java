@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.ignite.cli.common.IgniteCommand;
@@ -28,11 +30,16 @@ import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
 import org.w3c.dom.Node;
 import picocli.CommandLine;
+
+import static org.apache.ignite.internal.v2.builtins.NodeCommand.NodeManager.MAIN_CLASS;
 import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;
 import static java.lang.System.out;
 
 @CommandLine.Command(name = "node",
-    description = "Node actions", subcommands = {NodeCommand.StartNodeCommand.class, NodeCommand.StopNodeCommand.class})
+    description = "Node actions", subcommands = {
+        NodeCommand.StartNodeCommand.class,
+        NodeCommand.StopNodeCommand.class,
+    NodeCommand.ListNodesCommand.class})
 public class NodeCommand implements IgniteCommand, Runnable {
 
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
@@ -60,7 +67,7 @@ public class NodeCommand implements IgniteCommand, Runnable {
             if (!configFile.isPresent())
                 throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
             Config config = Config.readConfigFile(configFile.get());
-            long pid = NodeManager.start(config.libsDir(new Info().version), consistentId);
+            long pid = NodeManager.start(config.libsDir(new Info().version), pathOf(config.workDir), consistentId);
 
             spec.commandLine().getOut().println("Started ignite node with pid " + pid);
         }
@@ -82,17 +89,44 @@ public class NodeCommand implements IgniteCommand, Runnable {
         }
     }
 
+    @CommandLine.Command(name = "list", description = "List current ignite nodes")
+    public static class ListNodesCommand implements Runnable {
+
+        @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+
+        @Override public void run() {
+            String pids = ProcessHandle.allProcesses().filter(
+                p -> p
+                    .info()
+                    .arguments()
+                    .map(args -> Arrays.stream(args).anyMatch(arg -> arg.contains(MAIN_CLASS)))
+                    .orElse(false)
+            ).map(ProcessHandle::pid)
+                .map(String::valueOf)
+                .collect(Collectors.joining("\n"));
+            spec.commandLine().getOut().println(pids);
+
+        }
+    }
+
     public static class NodeManager {
 
-        private static final String MAIN_CLASS = "org.apache.ignite.startup.cmdline.CommandLineStartup";
+        public static final String MAIN_CLASS = "org.apache.ignite.startup.cmdline.CommandLineStartup";
 
-        public static long start(Path srvDir, String consistentId) {
+        public static long start(Path srvDir, Path workDir, String consistentId) {
             try {
+                Path logFile = workDir.resolve(consistentId + ".log");
+                if (Files.exists(logFile)) Files.delete(logFile);
+
+                Files.createFile(logFile);
+
                 ProcessBuilder pb = new ProcessBuilder("java",
                     "-DIGNITE_OVERRIDE_CONSISTENT_ID=" + consistentId,
                     "-cp", classpath(srvDir),
                     MAIN_CLASS, "config/default-config.xml"
-                    ).inheritIO();
+                    )
+                    .redirectError(logFile.toFile())
+                    .redirectOutput(logFile.toFile());
                 Process p = pb.start();
                 return p.pid();
             }
