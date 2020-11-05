@@ -15,17 +15,22 @@
  */
 
 import java.io.IOException;
-import java.nio.file.Paths;
-import org.apache.ignite.internal.installer.MavenArtifactResolver;
-import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
+import org.apache.ignite.internal.v2.builtins.NodeCommand;
+import static org.apache.ignite.internal.v2.builtins.NodeCommand.NodeManager;
+import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;
 
 public class Test {
 
     @org.junit.Test
-    public void test() throws IOException {
-        System.out.println("ok");
-        SystemPathResolver pathResolver = new SystemPathResolver.DefaultPathResolver();
-        new MavenArtifactResolver(pathResolver).resolveDeps(
-            Paths.get("/tmp/packages/module/"), Paths.get("/tmp/packages/cli/"), "org.apache.ignite", "ignite-demo-module-all", "2.10.0-SNAPSHOT");
+    public void test() throws IOException, InterruptedException {
+
+        String srvDir =
+            "/Users/kgusakov/Projects/gridgain_root/incubator-ignite/modules/cli-demo/ignitectl/target/tmp/ignite-bin/2.10.0-SNAPSHOT/libs/";
+        long pid = NodeManager.start(pathOf(srvDir), "consistentName");
+
+        Thread.sleep(60000);
+
+        NodeCommand.NodeManager.stopWait(pid);
+
     }
 }

@@ -90,6 +90,7 @@ public class ModuleCommand implements IgniteCommand, Runnable {
                         groupId,
                         artifactId,
                         version);
+
                 }
             } catch (IOException ex) {
                 throw new IgniteCLIException("Can't retrieve needed module", ex);

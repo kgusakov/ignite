@@ -35,7 +35,7 @@ import java.util.Set;
 public class ConfigurationManager {
     private final FragmentsRegistry fragmentReg;
 
-    private final Path confFile;
+    private final Path modulesConfFile;
 
     private final Path classpathFile;
 
@@ -58,26 +58,26 @@ public class ConfigurationManager {
         }
 
         public ConfigurationManager build() throws IOException {
-            Path confFile = libsRoot.resolve("modules.conf");
+            Path modulesConfFile = libsRoot.resolve("modules.conf");
             Path classpathFile = libsRoot.resolve("classpath.conf");
 
             Set<String> fragments = new HashSet<>();
 
-            if (Files.exists(confFile))
-                fragments.addAll(Files.readAllLines(confFile));
+            if (Files.exists(modulesConfFile))
+                fragments.addAll(Files.readAllLines(modulesConfFile));
 
-            return new ConfigurationManager(fragments, confFile, classpathFile, fragmentsReg);
+            return new ConfigurationManager(fragments, modulesConfFile, classpathFile, fragmentsReg);
         }
     }
 
     private ConfigurationManager(
         Set<String> fragments,
-        Path confFile,
+        Path modulesConfFile,
         Path classpathFile,
         FragmentsRegistry fragmentReg
     ) {
         this.fragments = fragments;
-        this.confFile = confFile;
+        this.modulesConfFile = modulesConfFile;
         this.classpathFile = classpathFile;
         this.fragmentReg = fragmentReg;
     }
@@ -152,7 +152,7 @@ public class ConfigurationManager {
     }
 
     private Path configurationFile() {
-        return confFile;
+        return modulesConfFile;
     }
 
     private Path classpathFile() {
