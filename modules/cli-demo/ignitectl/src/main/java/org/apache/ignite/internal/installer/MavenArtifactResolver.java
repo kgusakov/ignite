@@ -26,6 +26,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import io.micronaut.core.annotation.Introspected;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ivy.Ivy;
 import org.apache.ivy.core.module.descriptor.Artifact;
@@ -47,16 +50,15 @@ import org.apache.ivy.plugins.resolver.IBiblioResolver;
 /**
  *
  */
+@Singleton
+@Introspected
 public class MavenArtifactResolver {
 
     private final SystemPathResolver pathResolver;
 
+    @Inject
     public MavenArtifactResolver(SystemPathResolver pathResolver) {
         this.pathResolver = pathResolver;
-    }
-
-    public MavenArtifactResolver() {
-        pathResolver = new SystemPathResolver.DefaultPathResolver();
     }
 
     public ResolveResult resolve(

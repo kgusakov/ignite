@@ -57,7 +57,7 @@ public class IgniteCli implements Runnable {
         ApplicationContext applicationContext = ApplicationContext.run();
         CommandLine.IFactory factory = applicationContext.createBean(CommandFactory.class);
         CommandLine cli = new CommandLine(IgniteCli.class, factory)
-            .addSubcommand(ShellCommand.class);
+            .addSubcommand(applicationContext.createBean(ShellCommand.class));
 
         loadSubcommands(cli,
             applicationContext.createBean(SystemPathResolver.class),

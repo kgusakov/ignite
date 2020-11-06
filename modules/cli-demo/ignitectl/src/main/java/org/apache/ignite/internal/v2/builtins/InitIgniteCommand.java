@@ -25,6 +25,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
 
     private final SystemPathResolver pathResolver;
     private final Info info;
+    private final MavenArtifactResolver mavenArtifactResolver;
 
     @Override public void run() {
         spec.commandLine().getOut().println("Init ignite directories...");
@@ -36,9 +37,10 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
     }
 
     @Inject
-    public InitIgniteCommand(SystemPathResolver pathResolver, Info info) {
+    public InitIgniteCommand(SystemPathResolver pathResolver, Info info, MavenArtifactResolver mavenArtifactResolver) {
         this.pathResolver = pathResolver;
         this.info = info;
+        this.mavenArtifactResolver = mavenArtifactResolver;
     }
 
     private Config initDirectories() {
@@ -66,7 +68,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
 
     private void installIgnite(String path) {
         try {
-            new MavenArtifactResolver(pathResolver).resolve(Paths.get(path), info.groupId, info.artifactId, info.version);
+            mavenArtifactResolver.resolve(Paths.get(path), info.groupId, info.artifactId, info.version);
         }
         catch (IOException e) {
             throw new IgniteCLIException("Can't download core ignite artifact", e);

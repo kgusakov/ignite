@@ -1,13 +1,11 @@
 package org.apache.ignite.internal.v2.builtins;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import io.micronaut.core.annotation.Introspected;
 import org.jetbrains.annotations.NotNull;

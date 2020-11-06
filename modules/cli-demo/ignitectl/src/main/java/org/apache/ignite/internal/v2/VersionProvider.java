@@ -18,6 +18,7 @@ package org.apache.ignite.internal.v2;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.core.annotation.Introspected;
 import picocli.CommandLine;
 

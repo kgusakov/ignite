@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.internal.cli.impl.AllCommandsImpl;
 import org.apache.ignite.internal.cli.impl.CommandFactory;
 import org.apache.ignite.internal.installer.ConfigurationManager;
@@ -35,6 +36,7 @@ import picocli.CommandLine;
  */
 public class CommandHandler {
     public static void main(String[] args) throws URISyntaxException, IOException {
+        ApplicationContext applicationContext = ApplicationContext.run();
         File home = new File(CommandHandler.class.getProtectionDomain().getCodeSource().getLocation().toURI())
             .getParentFile();
 
@@ -62,7 +64,7 @@ public class CommandHandler {
             FragmentsRegistry fragmentReg = new FragmentsRegistry.Builder()
                 .setLibsRoot(libsRootPath)
                 .setOut(out)
-                .setArtifactResolver(new MavenArtifactResolver())
+                .setArtifactResolver(applicationContext.createBean(MavenArtifactResolver.class))
                 .build();
 
             ConfigurationManager confMgr = new ConfigurationManager.Builder()
