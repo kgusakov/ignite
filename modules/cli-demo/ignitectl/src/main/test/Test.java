@@ -24,13 +24,13 @@ public class Test {
     @org.junit.Test
     public void test() throws IOException, InterruptedException {
 
-        String srvDir =
-            "/Users/kgusakov/Projects/gridgain_root/incubator-ignite/modules/cli-demo/ignitectl/target/tmp/ignite-bin/2.10.0-SNAPSHOT/libs/";
-        long pid = NodeManager.start(pathOf(srvDir), "consistentName");
-
-        Thread.sleep(60000);
-
-        NodeCommand.NodeManager.stopWait(pid);
+//        String srvDir =
+//            "/Users/kgusakov/Projects/gridgain_root/incubator-ignite/modules/cli-demo/ignitectl/target/tmp/ignite-bin/2.10.0-SNAPSHOT/libs/";
+//        long pid = NodeManager.start(pathOf(srvDir), "consistentName");
+//
+//        Thread.sleep(60000);
+//
+//        NodeCommand.NodeManager.stopWait(pid);
 
     }
 }

@@ -36,6 +36,7 @@ package org.apache.ignite.internal.v2;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.keymap.KeyMap;
@@ -63,10 +64,27 @@ import static org.apache.ignite.internal.v2.IgniteCli.loadSubcommands;
     name = "shell",
     description = {"interactive mode"})
 public class ShellCommand implements Runnable {
+
+    private final CommandLine.IFactory factory;
+    private final SystemPathResolver systemPathResolver;
+    private final Info info;
+
+    public ShellCommand(CommandLine.IFactory factory, SystemPathResolver systemPathResolver, Info info) {
+        this.factory = factory;
+        this.systemPathResolver = systemPathResolver;
+        this.info = info;
+    }
+
     @Override public void run() {
-        IgniteCli commands = new IgniteCli();
+        IgniteCli commands;
+        try {
+            commands = factory.create(IgniteCli.class);
+        }
+        catch (Exception e) {
+            throw new IgniteCLIException("Can't initialize ignite cli in interactive mode", e);
+        }
         CommandLine cmd = new CommandLine(commands);
-        loadSubcommands(cmd);
+        loadSubcommands(cmd, systemPathResolver, info);
         PicocliCommands picocliCommands = new PicocliCommands(workDir(), cmd) {
             @Override public Object invoke(CommandSession ses, String cmd, Object... args) throws Exception {
                 return execute(ses, cmd, (String[])args);
@@ -104,7 +122,7 @@ public class ShellCommand implements Runnable {
                     {
                         commands = new IgniteCli();
                         cmd = new CommandLine(commands);
-                        loadSubcommands(cmd);
+                        loadSubcommands(cmd, systemPathResolver, info);
                         picocliCommands = new PicocliCommands(workDir(), cmd) {
                             @Override
                             public Object invoke(CommandSession ses, String cmd, Object... args) throws Exception {

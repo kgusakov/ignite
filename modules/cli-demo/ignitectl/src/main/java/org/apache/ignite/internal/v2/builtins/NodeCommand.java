@@ -24,16 +24,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
-import org.w3c.dom.Node;
 import picocli.CommandLine;
 
 import static org.apache.ignite.internal.v2.builtins.NodeCommand.NodeManager.MAIN_CLASS;
 import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;
-import static java.lang.System.out;
 
 @CommandLine.Command(name = "node",
     description = "Node actions", subcommands = {
@@ -53,21 +52,24 @@ public class NodeCommand implements IgniteCommand, Runnable {
 
         @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
-        @CommandLine.Parameters(paramLabel = "consistent-id", description = "ConsistentId for new node")
-        public String consistentId;
-
+        private final Info info;
         private final SystemPathResolver pathResolver;
 
-        public StartNodeCommand() {
-            pathResolver = new SystemPathResolver.DefaultPathResolver();
+        @Inject
+        public StartNodeCommand(Info info, SystemPathResolver pathResolver) {
+            this.info = info;
+            this.pathResolver = pathResolver;
         }
+
+        @CommandLine.Parameters(paramLabel = "consistent-id", description = "ConsistentId for new node")
+        public String consistentId;
 
         @Override public void run() {
             Optional<File> configFile = Config.searchConfigPath(pathResolver);
             if (!configFile.isPresent())
                 throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
             Config config = Config.readConfigFile(configFile.get());
-            long pid = NodeManager.start(config.libsDir(new Info().version), pathOf(config.workDir), consistentId);
+            long pid = NodeManager.start(config.libsDir(this.info.version), pathOf(config.workDir), consistentId);
 
             spec.commandLine().getOut().println("Started ignite node with pid " + pid);
         }
@@ -78,14 +80,17 @@ public class NodeCommand implements IgniteCommand, Runnable {
 
         @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
-        @CommandLine.Parameters(paramLabel = "pid", description = "pid of node")
-        public long pid;
+        @CommandLine.Parameters(paramLabel = "pids", description = "pid of nodes to start")
+        public List<Long> pids;
 
         @Override public void run() {
-            if (NodeManager.stopWait(pid))
-                spec.commandLine().getOut().println("Node with pid " + pid + " was stopped");
-            else
-                spec.commandLine().getOut().println("Stop was failed");
+            pids.forEach(p -> {
+                if (NodeManager.stopWait(p))
+                    spec.commandLine().getOut().println("Node with pid " + p + " was stopped");
+                else
+                    spec.commandLine().getOut().println("Stop of node " + p + " was failed");
+            });
+
         }
     }
 
@@ -136,10 +141,13 @@ public class NodeCommand implements IgniteCommand, Runnable {
         }
 
         public static String classpath(Path dir) throws IOException {
-            return Files.walk(dir.toAbsolutePath())
+            long start = System.currentTimeMillis();
+            String result = Files.walk(dir.toAbsolutePath())
                 .filter(f -> f.toString().endsWith(".jar"))
                 .map(f -> f.toAbsolutePath().toString())
                 .collect(Collectors.joining(":"));
+            System.out.println(System.currentTimeMillis() - start);
+            return result;
         }
 
         public static boolean stopWait(long pid) {

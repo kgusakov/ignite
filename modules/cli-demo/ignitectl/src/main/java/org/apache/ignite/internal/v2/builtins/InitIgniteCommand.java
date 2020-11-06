@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
+import javax.inject.Inject;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
@@ -34,11 +35,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
         spec.commandLine().getOut().println("Apache Ignite version " + info.version + " sucessfully installed");
     }
 
-    public InitIgniteCommand() {
-        pathResolver = new SystemPathResolver.DefaultPathResolver();
-        info = new Info();
-    }
-
+    @Inject
     public InitIgniteCommand(SystemPathResolver pathResolver, Info info) {
         this.pathResolver = pathResolver;
         this.info = info;

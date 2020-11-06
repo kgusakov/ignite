@@ -8,6 +8,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
+import javax.inject.Singleton;
+import io.micronaut.core.annotation.Introspected;
 import org.jetbrains.annotations.NotNull;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 
@@ -54,6 +56,8 @@ public interface SystemPathResolver {
     /**
      *
      */
+    @Singleton
+    @Introspected
     class DefaultPathResolver implements SystemPathResolver {
 
         private static final String APP_NAME = "ignite";

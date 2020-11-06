@@ -16,14 +16,20 @@
 
 package org.apache.ignite.internal.v2;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import io.micronaut.core.annotation.Introspected;
 import picocli.CommandLine;
 
+@Singleton
+@Introspected
 public class VersionProvider implements CommandLine.IVersionProvider {
 
     private final Info info;
 
-    public VersionProvider() {
-        this.info = new Info();
+    @Inject
+    public VersionProvider(Info info) {
+        this.info = info;
     }
 
     @Override public String[] getVersion() throws Exception {

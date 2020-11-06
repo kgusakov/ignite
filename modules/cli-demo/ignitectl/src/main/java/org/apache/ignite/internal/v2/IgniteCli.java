@@ -25,7 +25,12 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.cli.common.IgniteCommand;
+import org.apache.ignite.internal.v2.builtins.BaselineCommand;
+import org.apache.ignite.internal.v2.builtins.InitIgniteCommand;
+import org.apache.ignite.internal.v2.builtins.ModuleCommand;
+import org.apache.ignite.internal.v2.builtins.NodeCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
@@ -36,14 +41,27 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(name = "ignite", mixinStandardHelpOptions = true,
     description = "Control utility for Apache Ignite",
-    versionProvider = VersionProvider.class)
+    versionProvider = VersionProvider.class,
+    subcommands = {
+        BaselineCommand.class,
+        InitIgniteCommand.class,
+        NodeCommand.class,
+        ModuleCommand.class
+    }
+)
 public class IgniteCli implements Runnable {
     public LineReaderImpl reader;
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     public static void main(String... args) {
-        CommandLine cli = new CommandLine(new IgniteCli()).addSubcommand(ShellCommand.class);
-        loadSubcommands(cli);
+        ApplicationContext applicationContext = ApplicationContext.run();
+        CommandLine.IFactory factory = applicationContext.createBean(CommandFactory.class);
+        CommandLine cli = new CommandLine(IgniteCli.class, factory)
+            .addSubcommand(ShellCommand.class);
+
+        loadSubcommands(cli,
+            applicationContext.createBean(SystemPathResolver.class),
+            applicationContext.createBean(Info.class));
         System.exit(cli.execute(args));
     }
 
@@ -55,11 +73,11 @@ public class IgniteCli implements Runnable {
         this.reader = (LineReaderImpl) reader;
     }
 
-    public static void loadSubcommands(CommandLine commandLine) {
-        Optional<File> configOpt = Config.searchConfigPath(new SystemPathResolver.DefaultPathResolver());
+    public static void loadSubcommands(CommandLine commandLine, SystemPathResolver pathResolver, Info info) {
+        Optional<File> configOpt = Config.searchConfigPath(pathResolver);
         if (configOpt.isPresent()) {
             Config cfg = Config.readConfigFile(configOpt.get());
-            URL[] urls = SystemPathResolver.list(SystemPathResolver.osIndependentPath(cfg.binDir, new Info().version, "cli/"));
+            URL[] urls = SystemPathResolver.list(SystemPathResolver.osIndependentPath(cfg.binDir, info.version, "cli/"));
             ClassLoader classLoader = new URLClassLoader(urls,
                 IgniteCli.class.getClassLoader());
             ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class, classLoader);

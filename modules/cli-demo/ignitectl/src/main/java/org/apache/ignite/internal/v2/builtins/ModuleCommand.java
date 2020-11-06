@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import javax.inject.Inject;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
@@ -33,12 +34,7 @@ public class ModuleCommand implements IgniteCommand, Runnable {
         private final SystemPathResolver pathResolver;
         private final Info info;
 
-        public AddModuleCommand() {
-            mavenArtifactResolver = new MavenArtifactResolver(new SystemPathResolver.DefaultPathResolver());
-            this.pathResolver = new SystemPathResolver.DefaultPathResolver();
-            info = new Info();
-        }
-
+        @Inject
         public AddModuleCommand(MavenArtifactResolver mavenArtifactResolver, SystemPathResolver pathResolver, Info info) {
             this.mavenArtifactResolver = mavenArtifactResolver;
             this.pathResolver = pathResolver;
