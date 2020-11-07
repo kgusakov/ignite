@@ -12,22 +12,24 @@ import java.util.Optional;
 import java.util.Properties;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
+import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;
+
 public class Config {
 
-    public final String binDir;
-    public final String workDir;
+    public final Path binDir;
+    public final Path workDir;
 
     public Config(String binDir, String workDir) {
-        this.binDir = binDir;
-        this.workDir = workDir;
+        this.binDir = pathOf(binDir);
+        this.workDir = pathOf(workDir);
     }
 
     public Path cliDir(String version) {
-        return FileSystems.getDefault().getPath(SystemPathResolver.osIndependentPath(binDir, version, "cli"));
+        return binDir.resolve(version).resolve("cli");
     }
 
     public Path libsDir(String version) {
-        return FileSystems.getDefault().getPath(SystemPathResolver.osIndependentPath(binDir, version, "libs"));
+        return binDir.resolve(version).resolve("libs");
     }
 
     public static Config readConfigFile(File configFile) {
@@ -45,15 +47,15 @@ public class Config {
     }
 
     public static Optional<File> searchConfigPath(SystemPathResolver pathResolver) {
-        File cfgCurrentDir = new File(SystemPathResolver.osIndependentPath(pathResolver.osCurrentDirPath(), ".ignitecfg"));
+        File cfgCurrentDir = pathResolver.osCurrentDirPath().resolve(".ignitecfg").toFile();
         if (cfgCurrentDir.exists())
             return Optional.of(cfgCurrentDir);
 
-        File homeDirCfg = new File(SystemPathResolver.osIndependentPath(pathResolver.osHomeDirectoryPath(), ".ignitecfg"));
+        File homeDirCfg = pathResolver.osHomeDirectoryPath().resolve(".ignitecfg").toFile();
         if (homeDirCfg.exists())
             return Optional.of(homeDirCfg);
 
-        File globalDirCfg = new File(SystemPathResolver.osIndependentPath(pathResolver.osgGlobalConfigPath(), "ignite", "ignitecfg"));
+        File globalDirCfg = pathResolver.osgGlobalConfigPath().resolve("ignite").resolve("ignitecfg").toFile();
         if (globalDirCfg.exists())
             return Optional.of(globalDirCfg);
 

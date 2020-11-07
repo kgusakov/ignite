@@ -69,7 +69,7 @@ public class NodeCommand implements IgniteCommand, Runnable {
             if (!configFile.isPresent())
                 throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
             Config config = Config.readConfigFile(configFile.get());
-            long pid = NodeManager.start(config.libsDir(this.info.version), pathOf(config.workDir), consistentId);
+            long pid = NodeManager.start(config.libsDir(this.info.version), config.workDir, consistentId);
 
             spec.commandLine().getOut().println("Started ignite node with pid " + pid);
         }

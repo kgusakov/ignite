@@ -77,7 +77,7 @@ public class IgniteCli implements Runnable {
         Optional<File> configOpt = Config.searchConfigPath(pathResolver);
         if (configOpt.isPresent()) {
             Config cfg = Config.readConfigFile(configOpt.get());
-            URL[] urls = SystemPathResolver.list(SystemPathResolver.osIndependentPath(cfg.binDir, info.version, "cli/"));
+            URL[] urls = SystemPathResolver.list(cfg.cliDir(info.version));
             ClassLoader classLoader = new URLClassLoader(urls,
                 IgniteCli.class.getClassLoader());
             ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class, classLoader);

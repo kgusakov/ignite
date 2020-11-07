@@ -11,32 +11,22 @@ import io.micronaut.core.annotation.Introspected;
 import org.jetbrains.annotations.NotNull;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 
+import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;
+
 public interface SystemPathResolver {
 
     /**
      * @return
      */
-    String osgGlobalConfigPath();
+    Path osgGlobalConfigPath();
 
-    String osHomeDirectoryPath();
+    Path osHomeDirectoryPath();
 
-    String osCurrentDirPath();
+    Path osCurrentDirPath();
 
-    static String osIndependentPath(@NotNull String path, String... others) {
-        Path startPath = FileSystems.getDefault().getPath(path);
-        for (String p: others) {
-            startPath = FileSystems.getDefault().getPath(startPath.toString(), FileSystems.getDefault().getPath(p).toString());
-        }
-        return startPath.toString();
-    }
-
-    static Path pathOf(@NotNull String path) {
-        return FileSystems.getDefault().getPath(path);
-    }
-
-    static URL[] list(String path) {
+    static URL[] list(Path path) {
         try {
-            return Files.list(new File(path).toPath())
+            return Files.list(path)
                 .map(p -> {
                     try {
                         return p.toUri().toURL();
@@ -60,26 +50,26 @@ public interface SystemPathResolver {
 
         private static final String APP_NAME = "ignite";
 
-        @Override public String osgGlobalConfigPath() {
+        @Override public Path osgGlobalConfigPath() {
 
             String osName = System.getProperty("os.name").toLowerCase();
 
             if (osName.contains("unix"))
-                return "/etc/" + APP_NAME + "/";
+                return pathOf("/etc/").resolve(APP_NAME);
             else if (osName.startsWith("windows"))
                 // TODO: Support windows path through jna
-                return null;
+                throw new RuntimeException("Windows support is not implemented yet");
             else if (osName.startsWith("mac os"))
-                return "/Library/App \\Support/" + APP_NAME + "/";
+                return pathOf("/Library/App \\Support/").resolve(APP_NAME);
             else throw new IgniteCLIException("Unknown OS. Can't detect the appropriate config path");
         }
 
-        @Override public String osHomeDirectoryPath() {
-            return System.getProperty("user.home");
+        @Override public Path osHomeDirectoryPath() {
+            return pathOf(System.getProperty("user.home"));
         }
 
-        @Override public String osCurrentDirPath() {
-            return System.getProperty("user.dir");
+        @Override public Path osCurrentDirPath() {
+            return pathOf(System.getProperty("user.dir"));
         }
 
     }

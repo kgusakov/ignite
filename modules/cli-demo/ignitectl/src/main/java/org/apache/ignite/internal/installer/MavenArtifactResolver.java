@@ -89,7 +89,7 @@ public class MavenArtifactResolver {
         IBiblioResolver localBr = new IBiblioResolver();
         localBr.setM2compatible(true);
         localBr.setUsepoms(true);
-        localBr.setRoot("file://" + SystemPathResolver.osIndependentPath(pathResolver.osHomeDirectoryPath(), ".m2", "repository/"));
+        localBr.setRoot("file://" + pathResolver.osHomeDirectoryPath().resolve(".m2").resolve("repository"));
         localBr.setName("local");
         chainResolver.add(localBr);
 
@@ -195,7 +195,7 @@ public class MavenArtifactResolver {
         IBiblioResolver localBr = new IBiblioResolver();
         localBr.setM2compatible(true);
         localBr.setUsepoms(true);
-        localBr.setRoot("file://" + SystemPathResolver.osIndependentPath(pathResolver.osHomeDirectoryPath(), ".m2", "repository/"));
+        localBr.setRoot("file://" + pathResolver.osHomeDirectoryPath().resolve(".m2").resolve("repository/"));
         localBr.setName("local");
         chainResolver.add(localBr);
 
