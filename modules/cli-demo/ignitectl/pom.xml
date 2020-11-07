@@ -36,6 +36,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-cli-common</artifactId>
             <version>${project.version}</version>
@@ -168,10 +173,6 @@
                             <version>${picocli.version}</version>
                         </path>
                     </annotationProcessorPaths>
-<!--                    <compilerArgs>-->
-<!--                        <arg>-Amicronaut.processing.group=org.apache.ignite</arg>-->
-<!--                        <arg>-Amicronaut.processing.module=demo</arg>-->
-<!--                    </compilerArgs>-->
                 </configuration>
                 <executions>
                     <execution>
