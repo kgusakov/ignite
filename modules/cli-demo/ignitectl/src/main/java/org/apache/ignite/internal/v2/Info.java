@@ -11,7 +11,6 @@ import io.micronaut.core.annotation.Introspected;
 public class Info {
 
     public final String groupId;
-    public final String artifactId;
     public final String version;
 
     public Info() {
@@ -19,7 +18,6 @@ public class Info {
             Properties prop = new Properties();
             prop.load(inputStream);
             groupId = prop.getProperty("group.id", "undefined");
-            artifactId = "ignite-core";
             version = prop.getProperty("version", "undefined");
         }
         catch (IOException e) {
@@ -29,7 +27,6 @@ public class Info {
 
     public Info(String groupId, String artifactId, String version) {
         this.groupId = groupId;
-        this.artifactId = artifactId;
         this.version = version;
     }
 }
