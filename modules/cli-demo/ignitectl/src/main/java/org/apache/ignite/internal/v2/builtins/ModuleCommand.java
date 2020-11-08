@@ -2,9 +2,20 @@ package org.apache.ignite.internal.v2.builtins;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
+import com.mitchtalmadge.asciidata.table.ASCIITable;
+import com.mitchtalmadge.asciidata.table.formats.ASCIITableFormat;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValue;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
@@ -14,7 +25,9 @@ import picocli.CommandLine;
 
 @CommandLine.Command(name = "module",
     description = "Module management commands",
-    subcommands = {ModuleCommand.AddModuleCommand.class})
+    subcommands = {
+        ModuleCommand.AddModuleCommand.class,
+        ModuleCommand.ListModuleCommand.class})
 public class ModuleCommand implements IgniteCommand, Runnable {
 
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;
@@ -96,6 +109,76 @@ public class ModuleCommand implements IgniteCommand, Runnable {
             } catch (IOException ex) {
                 throw new IgniteCLIException("Can't retrieve needed module", ex);
             }
+        }
+    }
+
+    @CommandLine.Command(name = "list",
+        description = "List available builtin Apache Ignite modules")
+    public static class ListModuleCommand implements Runnable {
+
+        @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+
+        private final MavenArtifactResolver mavenArtifactResolver;
+        private final SystemPathResolver pathResolver;
+        private final Info info;
+
+        @Inject
+        public ListModuleCommand(MavenArtifactResolver mavenArtifactResolver, SystemPathResolver pathResolver, Info info) {
+            this.mavenArtifactResolver = mavenArtifactResolver;
+            this.pathResolver = pathResolver;
+            this.info = info;
+        }
+
+
+        @Override public void run() {
+            Optional<File> configFile = Config.searchConfigPath(pathResolver);
+            if (!configFile.isPresent())
+                throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
+            Config config = Config.readConfigFile(configFile.get());
+
+            String[] headers = new String[] {"name", "description"};
+
+            // TODO: ugly table should be changed
+            String[][] answer = readBuiltinModules()
+                .stream()
+                .map(m -> new String[] {m.name, m.description})
+                .collect(Collectors.toList())
+                .toArray(new String[][] {});
+
+            spec.commandLine().getOut().println(ASCIITable.fromData(headers, answer).toString());
+        }
+    }
+
+    private static List<ModuleDescription> readBuiltinModules() {
+        com.typesafe.config.ConfigObject config = ConfigFactory.load("modules.conf").getObject("modules");
+        List<ModuleDescription> modules = new ArrayList<>();
+        for (Map.Entry<String, ConfigValue> entry: config.entrySet()) {
+            ConfigObject configObject = (ConfigObject) entry.getValue();
+            modules.add(new ModuleDescription(
+                entry.getKey(),
+                configObject.toConfig().getString("description"),
+                configObject.toConfig().getStringList("artifacts"),
+                configObject.toConfig().getStringList("cli-artifacts")
+            ));
+        }
+        return modules;
+    }
+
+    static class ModuleDescription {
+        private final String name;
+        private final String description;
+        private final List<String> artifacts;
+        private final List<String> cliArtifacts;
+
+        public ModuleDescription(String name, String description, List<String> artifacts, List<String> cliArtifacts) {
+            this.name = name;
+            this.description = description;
+            this.artifacts = artifacts;
+            this.cliArtifacts = cliArtifacts;
+        }
+
+        public String toString() {
+            return this.name + ":\t" + this.description;
         }
     }
 
