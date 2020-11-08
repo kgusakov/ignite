@@ -136,7 +136,7 @@ public class FragmentsRegistry {
                 Files.createDirectories(mavenRoot);
 
                 // The fragment was not downloaded, download it first.
-                ResolveResult res = rslvr.resolve(mavenRoot, coords[1], coords[2], coords[3]);
+                ResolveResult res = rslvr.resolve(mavenRoot, coords[1], coords[2], coords[3], null);
 
                 Path tmpFile = Files.createFile(mavenRoot.resolve(fragment + ".resolved.tmp"));
 

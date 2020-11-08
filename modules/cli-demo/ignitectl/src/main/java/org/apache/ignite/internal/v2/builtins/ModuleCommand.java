@@ -27,6 +27,8 @@ public class ModuleCommand implements IgniteCommand, Runnable {
         description = "Add module to Ignite or cli tool")
     public static class AddModuleCommand implements Runnable {
 
+        @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+
         @CommandLine.Parameters(paramLabel = "artifact", description = "maven coordinates to add groupId:artifactId[:version]")
         public String mavenCoordinates;
 
@@ -71,21 +73,24 @@ public class ModuleCommand implements IgniteCommand, Runnable {
                         config.cliDir(info.version),
                         groupId,
                         artifactId,
-                        version);
+                        version,
+                        spec.commandLine().getOut());
                 }
                 else if (artifactId.endsWith("-cli")) {
                     mavenArtifactResolver.resolve(
                         config.cliDir(info.version),
                         groupId,
                         artifactId,
-                        version);
+                        version,
+                        spec.commandLine().getOut());
                 }
                 else {
                     mavenArtifactResolver.resolve(
                         config.libsDir(info.version),
                         groupId,
                         artifactId,
-                        version);
+                        version,
+                        spec.commandLine().getOut());
 
                 }
             } catch (IOException ex) {

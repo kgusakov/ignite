@@ -67,8 +67,8 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
 
     private void installIgnite(Path path) {
         try {
-            mavenArtifactResolver.resolve(path, info.groupId, "ignite-core", info.version);
-            mavenArtifactResolver.resolve(path, info.groupId, "ignite-spring", info.version);
+            mavenArtifactResolver.resolve(path, info.groupId, "ignite-core", info.version, spec.commandLine().getOut());
+            mavenArtifactResolver.resolve(path, info.groupId, "ignite-spring", info.version, spec.commandLine().getOut());
         }
         catch (IOException e) {
             throw new IgniteCLIException("Can't download core ignite artifacts", e);

@@ -19,18 +19,21 @@ package org.apache.ignite.internal.installer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import io.micronaut.core.annotation.Introspected;
+import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ivy.Ivy;
+import org.apache.ivy.core.IvyContext;
 import org.apache.ivy.core.module.descriptor.Artifact;
 import org.apache.ivy.core.module.descriptor.DefaultDependencyDescriptor;
 import org.apache.ivy.core.module.descriptor.DefaultModuleDescriptor;
@@ -46,6 +49,10 @@ import org.apache.ivy.core.settings.IvySettings;
 import org.apache.ivy.plugins.parser.m2.PomModuleDescriptorBuilder;
 import org.apache.ivy.plugins.resolver.ChainResolver;
 import org.apache.ivy.plugins.resolver.IBiblioResolver;
+import org.apache.ivy.util.AbstractMessageLogger;
+import org.apache.ivy.util.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -65,39 +72,11 @@ public class MavenArtifactResolver {
         Path mavenRoot,
         String grpId,
         String artifactId,
-        String version
+        String version,
+        PrintWriter out
     ) throws IOException {
-        // create an ivy instance
-        File tmpDir = Files.createTempDirectory("ignite-installer-cache").toFile();
-        tmpDir.deleteOnExit();
-
-        IvySettings ivySettings = new IvySettings();
-        ivySettings.setDefaultCache(tmpDir);
-        ivySettings.setDefaultCacheArtifactPattern("[artifact](-[classifier]).[revision].[ext]");
-
-        ChainResolver chainResolver = new ChainResolver();
-        chainResolver.setName("chainResolver");
-        // use the biblio resolver, if you consider resolving
-        // POM declared dependencies
-        IBiblioResolver br = new IBiblioResolver();
-        br.setM2compatible(true);
-        br.setUsepoms(true);
-        br.setName("central");
-
-        chainResolver.add(br);
-
-        IBiblioResolver localBr = new IBiblioResolver();
-        localBr.setM2compatible(true);
-        localBr.setUsepoms(true);
-        localBr.setRoot("file://" + pathResolver.osHomeDirectoryPath().resolve(".m2").resolve("repository"));
-        localBr.setName("local");
-        chainResolver.add(localBr);
-
-        ivySettings.addResolver(chainResolver);
-        ivySettings.setDefaultResolver(chainResolver.getName());
-
-        Ivy ivy = Ivy.newInstance(ivySettings);
-
+        Ivy ivy = ivySettings(out);
+        ModuleDescriptor md = rootModuleDescriptor(grpId, artifactId, version);
 
         // Step 1: you always need to resolve before you can retrieve
         //
@@ -109,40 +88,12 @@ public class MavenArtifactResolver {
         // if set to false, nothing will be downloaded
         ro.setDownload(true);
 
-        // 1st create an ivy module (this always(!) has a "default" configuration already)
-        DefaultModuleDescriptor md = DefaultModuleDescriptor.newDefaultInstance(
-            // give it some related name (so it can be cached)
-            ModuleRevisionId.newInstance(
-                "org.apache.ignite",
-                "installer-envelope",
-                "working"
-            )
-        );
-
-        // 2. add dependencies for what we are really looking for
-        ModuleRevisionId ri = ModuleRevisionId.newInstance(
-            grpId,
-            artifactId,
-            version
-        );
-        // don't go transitive here, if you want the single artifact
-        DefaultDependencyDescriptor dd = new DefaultDependencyDescriptor(md, ri, false, false, true);
-
-        // map to master to just get the code jar. See generated ivy module xmls from maven repo
-        // on how configurations are mapped into ivy. Or check
-        // e.g. http://lightguard-jp.blogspot.de/2009/04/ivy-configurations-when-pulling-from.html
-        dd.addDependencyConfiguration("default", "master");
-        dd.addDependencyConfiguration("default", "runtime");
-        dd.addDependencyConfiguration("default", "compile");
-
-        md.addDependency(dd);
-
         try {
             // now resolve
             ResolveReport rr = ivy.resolve(md,ro);
 
             if (rr.hasError())
-                throw new RuntimeException(rr.getAllProblemMessages().toString());
+                throw new IgniteCLIException(rr.getAllProblemMessages().toString());
 
             // Step 2: retrieve
             ModuleDescriptor m = rr.getModuleDescriptor();
@@ -171,39 +122,11 @@ public class MavenArtifactResolver {
         Path cliRoot,
         String grpId,
         String artifactId,
-        String version
+        String version,
+        PrintWriter out
     ) throws IOException {
-        // create an ivy instance
-        File tmpDir = Files.createTempDirectory("ignite-installer-cache").toFile();
-        tmpDir.deleteOnExit();
-
-        IvySettings ivySettings = new IvySettings();
-        ivySettings.setDefaultCache(tmpDir);
-        ivySettings.setDefaultCacheArtifactPattern("[artifact](-[classifier]).[revision].[ext]");
-
-        ChainResolver chainResolver = new ChainResolver();
-        chainResolver.setName("chainResolver");
-        // use the biblio resolver, if you consider resolving
-        // POM declared dependencies
-        IBiblioResolver br = new IBiblioResolver();
-        br.setM2compatible(true);
-        br.setUsepoms(true);
-        br.setName("central");
-
-        chainResolver.add(br);
-
-        IBiblioResolver localBr = new IBiblioResolver();
-        localBr.setM2compatible(true);
-        localBr.setUsepoms(true);
-        localBr.setRoot("file://" + pathResolver.osHomeDirectoryPath().resolve(".m2").resolve("repository/"));
-        localBr.setName("local");
-        chainResolver.add(localBr);
-
-        ivySettings.addResolver(chainResolver);
-        ivySettings.setDefaultResolver(chainResolver.getName());
-
-        Ivy ivy = Ivy.newInstance(ivySettings);
-
+        Ivy ivy = ivySettings(out);
+        ModuleDescriptor md = rootModuleDescriptor(grpId, artifactId, version);
 
         // Step 1: you always need to resolve before you can retrieve
         //
@@ -214,34 +137,6 @@ public class MavenArtifactResolver {
         ro.setTransitive(true);
         // if set to false, nothing will be downloaded
         ro.setDownload(true);
-
-        // 1st create an ivy module (this always(!) has a "default" configuration already)
-        DefaultModuleDescriptor md = DefaultModuleDescriptor.newDefaultInstance(
-            // give it some related name (so it can be cached)
-            ModuleRevisionId.newInstance(
-                "org.apache.ignite",
-                "installer-envelope",
-                "working"
-            )
-        );
-
-        // 2. add dependencies for what we are really looking for
-        ModuleRevisionId ri = ModuleRevisionId.newInstance(
-            grpId,
-            artifactId,
-            version
-        );
-        // don't go transitive here, if you want the single artifact
-        DefaultDependencyDescriptor dd = new DefaultDependencyDescriptor(md, ri, false, true, true);
-
-        // map to master to just get the code jar. See generated ivy module xmls from maven repo
-        // on how configurations are mapped into ivy. Or check
-        // e.g. http://lightguard-jp.blogspot.de/2009/04/ivy-configurations-when-pulling-from.html
-        dd.addDependencyConfiguration("default", "master");
-        dd.addDependencyConfiguration("default", "runtime");
-        dd.addDependencyConfiguration("default", "compile");
-
-        md.addDependency(dd);
 
         try {
             // now resolve base -all artifact
@@ -297,6 +192,118 @@ public class MavenArtifactResolver {
         catch (ParseException e) {
             // TOOD
             throw new IOException(e);
+        }
+    }
+
+    private Ivy ivySettings(PrintWriter out) throws IOException {
+        File tmpDir = Files.createTempDirectory("ignite-installer-cache").toFile();
+        tmpDir.deleteOnExit();
+
+        IvySettings ivySettings = new IvySettings();
+        ivySettings.setDefaultCache(tmpDir);
+        ivySettings.setDefaultCacheArtifactPattern("[artifact](-[classifier]).[revision].[ext]");
+
+        ChainResolver chainResolver = new ChainResolver();
+        chainResolver.setName("chainResolver");
+        // use the biblio resolver, if you consider resolving
+        // POM declared dependencies
+        IBiblioResolver br = new IBiblioResolver();
+        br.setM2compatible(true);
+        br.setUsepoms(true);
+        br.setName("central");
+
+        chainResolver.add(br);
+
+        IBiblioResolver localBr = new IBiblioResolver();
+        localBr.setM2compatible(true);
+        localBr.setUsepoms(true);
+        localBr.setRoot("file://" + pathResolver.osHomeDirectoryPath().resolve(".m2").resolve("repository/"));
+        localBr.setName("local");
+        chainResolver.add(localBr);
+
+        ivySettings.addResolver(chainResolver);
+        ivySettings.setDefaultResolver(chainResolver.getName());
+
+        Ivy ivy = new Ivy();
+        ivy.getLoggerEngine().setDefaultLogger(new IvyLogger(out));
+        // needed for setting the message logger before logging info from loading settings
+        IvyContext.getContext().setIvy(ivy);
+        ivy.setSettings(ivySettings);
+        ivy.bind();
+
+        return ivy;
+    }
+
+    private ModuleDescriptor rootModuleDescriptor(String grpId, String artifactId, String version) {
+        // 1st create an ivy module (this always(!) has a "default" configuration already)
+        DefaultModuleDescriptor md = DefaultModuleDescriptor.newDefaultInstance(
+            // give it some related name (so it can be cached)
+            ModuleRevisionId.newInstance(
+                "org.apache.ignite",
+                "installer-envelope",
+                "working"
+            )
+        );
+
+        // 2. add dependencies for what we are really looking for
+        ModuleRevisionId ri = ModuleRevisionId.newInstance(
+            grpId,
+            artifactId,
+            version
+        );
+        // don't go transitive here, if you want the single artifact
+        DefaultDependencyDescriptor dd = new DefaultDependencyDescriptor(md, ri, false, true, true);
+
+        // map to master to just get the code jar. See generated ivy module xmls from maven repo
+        // on how configurations are mapped into ivy. Or check
+        // e.g. http://lightguard-jp.blogspot.de/2009/04/ivy-configurations-when-pulling-from.html
+        dd.addDependencyConfiguration("default", "master");
+        dd.addDependencyConfiguration("default", "runtime");
+        dd.addDependencyConfiguration("default", "compile");
+
+        md.addDependency(dd);
+        return md;
+    }
+
+    private static class IvyLogger extends AbstractMessageLogger {
+
+        private final PrintWriter out;
+        private final Logger logger = LoggerFactory.getLogger(IvyLogger.class);
+
+        public IvyLogger(PrintWriter out) {
+            this.out = out;
+        }
+
+        @Override protected void doProgress() {
+            out.print(".");
+        }
+
+        @Override protected void doEndProgress(String msg) {
+            out.println(msg);
+        }
+
+        @Override public void log(String msg, int level) {
+            switch (level) {
+                case Message.MSG_ERR:
+                    logger.error(msg);
+                    break;
+                case Message.MSG_WARN:
+                    logger.warn(msg);
+                    break;
+                case Message.MSG_INFO:
+                    logger.info(msg);
+                    break;
+                case Message.MSG_VERBOSE:
+                    logger.debug(msg);
+                    break;
+                case Message.MSG_DEBUG:
+                    logger.trace(msg);
+                    break;
+            }
+        }
+
+        @Override public void rawlog(String msg, int level) {
+            log(msg, level);
         }
     }
 }
