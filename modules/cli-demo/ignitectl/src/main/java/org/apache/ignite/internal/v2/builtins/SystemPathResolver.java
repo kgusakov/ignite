@@ -1,14 +1,13 @@
 package org.apache.ignite.internal.v2.builtins;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.inject.Singleton;
 import io.micronaut.core.annotation.Introspected;
-import org.jetbrains.annotations.NotNull;
+import net.harawata.appdirs.AppDirs;
+import net.harawata.appdirs.AppDirsFactory;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 
 import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;
@@ -50,15 +49,17 @@ public interface SystemPathResolver {
 
         private static final String APP_NAME = "ignite";
 
+        private final AppDirs appsDir = AppDirsFactory.getInstance();
+
         @Override public Path osgGlobalConfigPath() {
 
             String osName = System.getProperty("os.name").toLowerCase();
 
+            // TODO: check if appdirs is suitable for all cases (xdg integration and mac os path should be checked)
             if (osName.contains("unix"))
                 return pathOf("/etc/").resolve(APP_NAME);
             else if (osName.startsWith("windows"))
-                // TODO: Support windows path through jna
-                throw new RuntimeException("Windows support is not implemented yet");
+                return pathOf(appsDir.getSiteConfigDir(APP_NAME, null, null));
             else if (osName.startsWith("mac os"))
                 return pathOf("/Library/App \\Support/").resolve(APP_NAME);
             else throw new IgniteCLIException("Unknown OS. Can't detect the appropriate config path");
