@@ -83,7 +83,7 @@ public class ModuleManager {
                 MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, info.version);
                 try {
                     mavenArtifactResolver.resolve(
-                        config.cliDir(info.version),
+                        config.cliLibsDir(info.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
                         mavenCoordinates.version,

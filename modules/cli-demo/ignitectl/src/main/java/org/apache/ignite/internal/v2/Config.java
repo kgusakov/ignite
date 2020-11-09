@@ -24,12 +24,16 @@ public class Config {
         this.workDir = pathOf(workDir);
     }
 
-    public Path cliDir(String version) {
+    public Path cliLibsDir(String version) {
         return binDir.resolve(version).resolve("cli");
     }
 
     public Path libsDir(String version) {
         return binDir.resolve(version).resolve("libs");
+    }
+
+    public Path cliPidsDir() {
+        return workDir.resolve("cli").resolve("pids");
     }
 
     public static Config readConfigFile(File configFile) {

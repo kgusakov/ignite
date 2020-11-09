@@ -18,11 +18,8 @@
 package org.apache.ignite.internal.v2;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import io.micronaut.context.ApplicationContext;
@@ -77,7 +74,7 @@ public class IgniteCli implements Runnable {
         Optional<File> configOpt = Config.searchConfigPath(pathResolver);
         if (configOpt.isPresent()) {
             Config cfg = Config.readConfigFile(configOpt.get());
-            URL[] urls = SystemPathResolver.list(cfg.cliDir(info.version));
+            URL[] urls = SystemPathResolver.list(cfg.cliLibsDir(info.version));
             ClassLoader classLoader = new URLClassLoader(urls,
                 IgniteCli.class.getClassLoader());
             ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class, classLoader);

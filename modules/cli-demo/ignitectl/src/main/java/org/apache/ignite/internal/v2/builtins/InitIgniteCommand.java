@@ -3,10 +3,7 @@ package org.apache.ignite.internal.v2.builtins;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
 import javax.inject.Inject;
@@ -66,9 +63,9 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
         if (!(igniteBin.exists() || igniteBin.mkdirs()))
             throw new IgniteCLIException("Can't create a directory for ignite modules: " + cfg.libsDir(info.version));
 
-        File igniteBinCli = cfg.cliDir(info.version).toFile();
+        File igniteBinCli = cfg.cliLibsDir(info.version).toFile();
         if (!(igniteBinCli.exists() || igniteBinCli.mkdirs()))
-            throw new IgniteCLIException("Can't create a directory for cli modules: " + cfg.cliDir(info.version));
+            throw new IgniteCLIException("Can't create a directory for cli modules: " + cfg.cliLibsDir(info.version));
 
         return cfg;
 

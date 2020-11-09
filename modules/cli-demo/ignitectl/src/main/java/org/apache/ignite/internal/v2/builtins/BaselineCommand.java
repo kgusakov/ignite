@@ -21,7 +21,7 @@ import picocli.CommandLine;
 
 @CommandLine.Command(name = "baseline", mixinStandardHelpOptions = true,
     description = "Baseline actions")
-public class BaselineCommand implements IgniteCommand, Runnable {
+public class BaselineCommand implements Runnable {
 
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 

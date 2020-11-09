@@ -18,6 +18,7 @@ public class CommandFactory implements CommandLine.IFactory {
     }
 
 
+    // TODO: Dirty way with silent fails on injecting - must be fixed
     @Override public <K> K create(Class<K> cls) throws Exception {
         try {
             return applicationContext.createBean(cls); // custom factory lookup or instantiation
