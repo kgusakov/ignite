@@ -21,6 +21,7 @@ import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
+import org.apache.ignite.internal.v2.module.TransferListenerFactory;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "module",
@@ -48,12 +49,16 @@ public class ModuleCommand implements IgniteCommand, Runnable {
         private final MavenArtifactResolver mavenArtifactResolver;
         private final SystemPathResolver pathResolver;
         private final Info info;
+        private final TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper;
 
         @Inject
-        public AddModuleCommand(MavenArtifactResolver mavenArtifactResolver, SystemPathResolver pathResolver, Info info) {
+        public AddModuleCommand(MavenArtifactResolver mavenArtifactResolver,
+            SystemPathResolver pathResolver, Info info,
+            TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper) {
             this.mavenArtifactResolver = mavenArtifactResolver;
             this.pathResolver = pathResolver;
             this.info = info;
+            this.transferEventListenerWrapper = transferEventListenerWrapper;
         }
 
 
@@ -87,7 +92,7 @@ public class ModuleCommand implements IgniteCommand, Runnable {
                         groupId,
                         artifactId,
                         version,
-                        spec.commandLine().getOut());
+                        transferEventListenerWrapper.produceListener(spec.commandLine().getOut()));
                 }
                 else if (artifactId.endsWith("-cli")) {
                     mavenArtifactResolver.resolve(
@@ -95,7 +100,7 @@ public class ModuleCommand implements IgniteCommand, Runnable {
                         groupId,
                         artifactId,
                         version,
-                        spec.commandLine().getOut());
+                        transferEventListenerWrapper.produceListener(spec.commandLine().getOut()));
                 }
                 else {
                     mavenArtifactResolver.resolve(
@@ -103,7 +108,7 @@ public class ModuleCommand implements IgniteCommand, Runnable {
                         groupId,
                         artifactId,
                         version,
-                        spec.commandLine().getOut());
+                        transferEventListenerWrapper.produceListener(spec.commandLine().getOut()));
 
                 }
             } catch (IOException ex) {

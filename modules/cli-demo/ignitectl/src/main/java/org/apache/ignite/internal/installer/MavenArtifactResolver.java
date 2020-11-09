@@ -19,7 +19,6 @@ package org.apache.ignite.internal.installer;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +33,7 @@ import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ivy.Ivy;
 import org.apache.ivy.core.IvyContext;
+import org.apache.ivy.core.event.EventManager;
 import org.apache.ivy.core.module.descriptor.Artifact;
 import org.apache.ivy.core.module.descriptor.DefaultDependencyDescriptor;
 import org.apache.ivy.core.module.descriptor.DefaultModuleDescriptor;
@@ -46,11 +46,13 @@ import org.apache.ivy.core.resolve.ResolveOptions;
 import org.apache.ivy.core.retrieve.RetrieveOptions;
 import org.apache.ivy.core.retrieve.RetrieveReport;
 import org.apache.ivy.core.settings.IvySettings;
-import org.apache.ivy.plugins.parser.m2.PomModuleDescriptorBuilder;
+import org.apache.ivy.plugins.repository.TransferEvent;
+import org.apache.ivy.plugins.repository.TransferListener;
 import org.apache.ivy.plugins.resolver.ChainResolver;
 import org.apache.ivy.plugins.resolver.IBiblioResolver;
 import org.apache.ivy.util.AbstractMessageLogger;
 import org.apache.ivy.util.Message;
+import org.apache.ivy.util.MessageLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,9 +75,9 @@ public class MavenArtifactResolver {
         String grpId,
         String artifactId,
         String version,
-        PrintWriter out
+        TransferListener transferListener
     ) throws IOException {
-        Ivy ivy = ivySettings(out);
+        Ivy ivy = ivyInstance(transferListener);
         ModuleDescriptor md = rootModuleDescriptor(grpId, artifactId, version);
 
         // Step 1: you always need to resolve before you can retrieve
@@ -123,9 +125,9 @@ public class MavenArtifactResolver {
         String grpId,
         String artifactId,
         String version,
-        PrintWriter out
+        TransferListener transferListener
     ) throws IOException {
-        Ivy ivy = ivySettings(out);
+        Ivy ivy = ivyInstance(transferListener);
         ModuleDescriptor md = rootModuleDescriptor(grpId, artifactId, version);
 
         // Step 1: you always need to resolve before you can retrieve
@@ -195,9 +197,12 @@ public class MavenArtifactResolver {
         }
     }
 
-    private Ivy ivySettings(PrintWriter out) throws IOException {
+    private Ivy ivyInstance(TransferListener transferListener) throws IOException {
         File tmpDir = Files.createTempDirectory("ignite-installer-cache").toFile();
         tmpDir.deleteOnExit();
+
+        EventManager eventManager = new EventManager();
+        eventManager.addTransferListener(transferListener);
 
         IvySettings ivySettings = new IvySettings();
         ivySettings.setDefaultCache(tmpDir);
@@ -205,9 +210,11 @@ public class MavenArtifactResolver {
 
         ChainResolver chainResolver = new ChainResolver();
         chainResolver.setName("chainResolver");
+        chainResolver.setEventManager(eventManager);
         // use the biblio resolver, if you consider resolving
         // POM declared dependencies
         IBiblioResolver br = new IBiblioResolver();
+        br.setEventManager(eventManager);
         br.setM2compatible(true);
         br.setUsepoms(true);
         br.setName("central");
@@ -215,6 +222,7 @@ public class MavenArtifactResolver {
         chainResolver.add(br);
 
         IBiblioResolver localBr = new IBiblioResolver();
+        localBr.setEventManager(eventManager);
         localBr.setM2compatible(true);
         localBr.setUsepoms(true);
         localBr.setRoot("file://" + pathResolver.osHomeDirectoryPath().resolve(".m2").resolve("repository/"));
@@ -225,7 +233,7 @@ public class MavenArtifactResolver {
         ivySettings.setDefaultResolver(chainResolver.getName());
 
         Ivy ivy = new Ivy();
-        ivy.getLoggerEngine().setDefaultLogger(new IvyLogger(out));
+        ivy.getLoggerEngine().setDefaultLogger(new IvyLogger());
         // needed for setting the message logger before logging info from loading settings
         IvyContext.getContext().setIvy(ivy);
         ivy.setSettings(ivySettings);
@@ -265,21 +273,17 @@ public class MavenArtifactResolver {
         return md;
     }
 
+
     private static class IvyLogger extends AbstractMessageLogger {
 
-        private final PrintWriter out;
         private final Logger logger = LoggerFactory.getLogger(IvyLogger.class);
 
-        public IvyLogger(PrintWriter out) {
-            this.out = out;
-        }
-
         @Override protected void doProgress() {
-            out.print(".");
+            // no-op
         }
 
         @Override protected void doEndProgress(String msg) {
-            out.println(msg);
+            // no-op
         }
 
         @Override public void log(String msg, int level) {

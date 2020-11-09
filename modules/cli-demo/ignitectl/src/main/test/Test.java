@@ -15,22 +15,25 @@
  */
 
 import java.io.IOException;
-import org.apache.ignite.internal.v2.builtins.NodeCommand;
-import static org.apache.ignite.internal.v2.builtins.NodeCommand.NodeManager;
+import java.io.PrintWriter;
+import io.micronaut.context.ApplicationContext;
+import org.apache.ignite.internal.installer.MavenArtifactResolver;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
+import org.apache.ignite.internal.v2.module.TransferListenerFactory;
+
 import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;
 
 public class Test {
 
+
+
     @org.junit.Test
     public void test() throws IOException, InterruptedException {
-
-//        String srvDir =
-//            "/Users/kgusakov/Projects/gridgain_root/incubator-ignite/modules/cli-demo/ignitectl/target/tmp/ignite-bin/2.10.0-SNAPSHOT/libs/";
-//        long pid = NodeManager.start(pathOf(srvDir), "consistentName");
-//
-//        Thread.sleep(60000);
-//
-//        NodeCommand.NodeManager.stopWait(pid);
+        ApplicationContext applicationContext = ApplicationContext.run();
+        MavenArtifactResolver resolver = new MavenArtifactResolver(new SystemPathResolver.DefaultPathResolver());
+        PrintWriter pw = new PrintWriter(System.out, true);
+        resolver.resolve(pathOf("/tmp"), "org.apache.ignite", "ignite-indexing", "2.10.0-SNAPSHOT",
+            applicationContext.getBean(TransferListenerFactory.TransferEventListenerWrapper.class).produceListener(pw));
 
     }
 }
