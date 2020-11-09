@@ -15,8 +15,8 @@ import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.IgniteCLIException;
+import org.apache.ignite.internal.v2.module.ModuleManager;
 import org.apache.ignite.internal.v2.module.TransferListenerFactory;
-import org.apache.ivy.plugins.repository.TransferListener;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 
@@ -30,23 +30,27 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
     private final Info info;
     private final MavenArtifactResolver mavenArtifactResolver;
     private final TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper;
+    private final ModuleManager moduleManager;
 
     @Override public void run() {
         spec.commandLine().getOut().println("Init ignite directories...");
-        Config dirs = initDirectories();
+        Config config = initDirectories();
         spec.commandLine().getOut().println("Installing ignite core...");
-        installIgnite(dirs.libsDir(info.version));
+        installIgnite(config);
         spec.commandLine().getOut().println("Download current ignite version...");
         spec.commandLine().getOut().println("Apache Ignite version " + info.version + " sucessfully installed");
     }
 
     @Inject
     public InitIgniteCommand(SystemPathResolver pathResolver, Info info,
-        MavenArtifactResolver mavenArtifactResolver, TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper) {
+        MavenArtifactResolver mavenArtifactResolver,
+        TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper,
+        ModuleManager moduleManager) {
         this.pathResolver = pathResolver;
         this.info = info;
         this.mavenArtifactResolver = mavenArtifactResolver;
         this.transferEventListenerWrapper = transferEventListenerWrapper;
+        this.moduleManager = moduleManager;
     }
 
     private Config initDirectories() {
@@ -70,16 +74,8 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
 
     }
 
-    private void installIgnite(Path path) {
-        try {
-            mavenArtifactResolver.resolve(path, info.groupId, "ignite-core", info.version,
-                transferEventListenerWrapper.produceListener(spec.commandLine().getOut()));
-            mavenArtifactResolver.resolve(path, info.groupId, "ignite-spring", info.version,
-                transferEventListenerWrapper.produceListener(spec.commandLine().getOut()));
-        }
-        catch (IOException e) {
-            throw new IgniteCLIException("Can't download core ignite artifacts", e);
-        }
+    private void installIgnite(Config config) {
+        moduleManager.addModule("server", config, transferEventListenerWrapper.produceListener(spec.commandLine().getOut()));
     }
 
     private File initConfigFile() {
