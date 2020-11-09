@@ -24,7 +24,7 @@ public class TransferListenerFactory {
         };
     }
 
-    public static interface TransferEventListenerWrapper {
-        public TransferListener produceListener(PrintWriter out);
+    public interface TransferEventListenerWrapper {
+        TransferListener produceListener(PrintWriter out);
     }
 }

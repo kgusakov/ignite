@@ -1,16 +1,13 @@
 package org.apache.ignite.internal.v2.module;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
-import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Prototype;
 import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
@@ -21,11 +18,11 @@ import org.apache.ivy.plugins.repository.TransferListener;
 @Prototype
 public class ModuleManager {
 
-    private List<ModuleDescription> modules;
+    private List<StandardModuleDefinition> modules;
     private MavenArtifactResolver mavenArtifactResolver;
     private Info info;
 
-    public ModuleManager(List<ModuleDescription> modules) {
+    public ModuleManager(List<StandardModuleDefinition> modules) {
         this.modules = readBuiltinModules();
     }
 
@@ -63,7 +60,7 @@ public class ModuleManager {
         else if (name.startsWith("file://"))
             throw new RuntimeException("File urls is not implemented yet");
         else if (isStandardModuleName(name)) {
-            ModuleDescription moduleDescription = readBuiltinModules()
+            StandardModuleDefinition moduleDescription = readBuiltinModules()
                 .stream()
                 .filter(m -> m.name.equals(name))
                 .findFirst().get();
@@ -110,12 +107,12 @@ public class ModuleManager {
 
 
 
-    public static List<ModuleDescription> readBuiltinModules() {
+    public static List<StandardModuleDefinition> readBuiltinModules() {
         com.typesafe.config.ConfigObject config = ConfigFactory.load("modules.conf").getObject("modules");
-        List<ModuleDescription> modules = new ArrayList<>();
+        List<StandardModuleDefinition> modules = new ArrayList<>();
         for (Map.Entry<String, ConfigValue> entry: config.entrySet()) {
             ConfigObject configObject = (ConfigObject) entry.getValue();
-            modules.add(new ModuleDescription(
+            modules.add(new StandardModuleDefinition(
                 entry.getKey(),
                 configObject.toConfig().getString("description"),
                 configObject.toConfig().getStringList("artifacts"),
