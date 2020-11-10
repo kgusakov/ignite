@@ -13,7 +13,6 @@ import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.module.ModuleManager;
-import org.apache.ignite.internal.v2.module.TransferListenerFactory;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 
@@ -25,28 +24,23 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
 
     private final SystemPathResolver pathResolver;
     private final Info info;
-    private final MavenArtifactResolver mavenArtifactResolver;
-    private final TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper;
     private final ModuleManager moduleManager;
 
     @Override public void run() {
+        moduleManager.setOut(spec.commandLine().getOut());
         spec.commandLine().getOut().println("Init ignite directories...");
         Config config = initDirectories();
-        spec.commandLine().getOut().println("Installing ignite core...");
+        spec.commandLine().getOut().println("Download and install current ignite version...");
         installIgnite(config);
-        spec.commandLine().getOut().println("Download current ignite version...");
+        spec.commandLine().getOut().println();
         spec.commandLine().getOut().println("Apache Ignite version " + info.version + " sucessfully installed");
     }
 
     @Inject
     public InitIgniteCommand(SystemPathResolver pathResolver, Info info,
-        MavenArtifactResolver mavenArtifactResolver,
-        TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper,
         ModuleManager moduleManager) {
         this.pathResolver = pathResolver;
         this.info = info;
-        this.mavenArtifactResolver = mavenArtifactResolver;
-        this.transferEventListenerWrapper = transferEventListenerWrapper;
         this.moduleManager = moduleManager;
     }
 
@@ -72,7 +66,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
     }
 
     private void installIgnite(Config config) {
-        moduleManager.addModule("server", config, transferEventListenerWrapper.produceListener(spec.commandLine().getOut()));
+        moduleManager.addModule("server", config);
     }
 
     private File initConfigFile() {

@@ -70,7 +70,7 @@ public class NodeCommand implements Runnable {
             Config config = Config.readConfigFile(configFile.get());
             long pid = nodeManager.start(consistentId, config);
 
-            spec.commandLine().getOut().println("Started ignite node with pid " + pid);
+            spec.commandLine().getOut().println("Started ignite node '" + consistentId + "'");
         }
     }
 
@@ -126,11 +126,14 @@ public class NodeCommand implements Runnable {
             if (!configFile.isPresent())
                 throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
 
-            String pids = nodeManager.getRunningNodes(Config.readConfigFile(configFile.get())).stream()
+            List<String> pids = nodeManager.getRunningNodes(Config.readConfigFile(configFile.get())).stream()
                 .map(rn -> rn.pid + "\t" + rn.consistentId)
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.toList());
 
-            spec.commandLine().getOut().println(pids);
+            if (pids.isEmpty())
+                spec.commandLine().getOut().println("No running nodes");
+            else
+                spec.commandLine().getOut().println(String.join("\n", pids));
 
         }
     }

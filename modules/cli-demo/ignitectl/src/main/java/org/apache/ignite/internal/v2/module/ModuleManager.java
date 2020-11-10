@@ -1,10 +1,12 @@
 package org.apache.ignite.internal.v2.module;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
@@ -14,12 +16,13 @@ import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ivy.plugins.repository.TransferListener;
 
-@Prototype
+@Singleton
 public class ModuleManager {
 
     private List<StandardModuleDefinition> modules;
     private MavenArtifactResolver mavenArtifactResolver;
     private Info info;
+    private PrintWriter out;
 
     public ModuleManager(List<StandardModuleDefinition> modules) {
         this.modules = readBuiltinModules();
@@ -35,11 +38,16 @@ public class ModuleManager {
         this.info = info;
     }
 
+    public void setOut(PrintWriter out) {
+        this.out = out;
+        mavenArtifactResolver.setOut(out);
+    }
+
     public static ModuleManager load() {
         return new ModuleManager(readBuiltinModules());
     }
 
-    public void addModule(String name, Config config, TransferListener transferListener) {
+    public void addModule(String name, Config config) {
         if (name.startsWith("mvn:")) {
             MavenCoordinates mavenCoordinates = MavenCoordinates.of(name);
 
@@ -48,8 +56,8 @@ public class ModuleManager {
                     config.libsDir(info.version),
                     mavenCoordinates.groupId,
                     mavenCoordinates.artifactId,
-                    mavenCoordinates.version,
-                    transferListener);
+                    mavenCoordinates.version
+                );
             }
             catch (IOException e) {
                 throw new IgniteCLIException("Error during resolving maven module " + name, e);
@@ -70,8 +78,8 @@ public class ModuleManager {
                         config.libsDir(info.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
-                        mavenCoordinates.version,
-                        transferListener);
+                        mavenCoordinates.version
+                    );
                 }
                 catch (IOException e) {
                     throw new IgniteCLIException("Error during resolving standard module " + name, e);
@@ -85,8 +93,8 @@ public class ModuleManager {
                         config.cliLibsDir(info.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
-                        mavenCoordinates.version,
-                        transferListener);
+                        mavenCoordinates.version
+                    );
                 }
                 catch (IOException e) {
                     throw new IgniteCLIException("Error during resolving module " + name, e);

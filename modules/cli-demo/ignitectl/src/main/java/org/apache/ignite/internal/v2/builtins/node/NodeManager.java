@@ -53,12 +53,10 @@ public class NodeManager {
     }
 
     public static String classpath(Path dir) throws IOException {
-        long start = System.currentTimeMillis();
         String result = Files.walk(dir.toAbsolutePath())
             .filter(f -> f.toString().endsWith(".jar"))
             .map(f -> f.toAbsolutePath().toString())
             .collect(Collectors.joining(":"));
-        System.out.println(System.currentTimeMillis() - start);
         return result;
     }
 

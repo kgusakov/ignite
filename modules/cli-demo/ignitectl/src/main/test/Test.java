@@ -19,7 +19,6 @@ import java.io.PrintWriter;
 import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.module.ModuleManager;
-import org.apache.ignite.internal.v2.module.TransferListenerFactory;
 
 public class Test {
 

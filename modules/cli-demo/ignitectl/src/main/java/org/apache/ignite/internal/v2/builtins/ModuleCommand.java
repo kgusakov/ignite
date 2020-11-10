@@ -11,7 +11,6 @@ import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.module.ModuleManager;
-import org.apache.ignite.internal.v2.module.TransferListenerFactory;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "module",
@@ -38,19 +37,14 @@ public class ModuleCommand implements IgniteCommand, Runnable {
 
         private final MavenArtifactResolver mavenArtifactResolver;
         private final SystemPathResolver pathResolver;
-        private final Info info;
-        private final TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper;
         private final ModuleManager moduleManager;
 
         @Inject
         public AddModuleCommand(MavenArtifactResolver mavenArtifactResolver,
-            SystemPathResolver pathResolver, Info info,
-            TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper,
+            SystemPathResolver pathResolver,
             ModuleManager moduleManager) {
             this.mavenArtifactResolver = mavenArtifactResolver;
             this.pathResolver = pathResolver;
-            this.info = info;
-            this.transferEventListenerWrapper = transferEventListenerWrapper;
             this.moduleManager = moduleManager;
         }
 
@@ -61,8 +55,8 @@ public class ModuleCommand implements IgniteCommand, Runnable {
                 throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
             Config config = Config.readConfigFile(configFile.get());
 
-            moduleManager.addModule(moduleName, config,
-                transferEventListenerWrapper.produceListener(spec.commandLine().getOut()));
+            moduleManager.setOut(spec.commandLine().getOut());
+            moduleManager.addModule(moduleName, config);
         }
     }
 

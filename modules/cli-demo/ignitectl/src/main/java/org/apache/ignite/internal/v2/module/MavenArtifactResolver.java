@@ -19,6 +19,7 @@ package org.apache.ignite.internal.v2.module;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
@@ -31,6 +32,8 @@ import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ivy.Ivy;
 import org.apache.ivy.core.IvyContext;
 import org.apache.ivy.core.event.EventManager;
+import org.apache.ivy.core.event.IvyEvent;
+import org.apache.ivy.core.event.IvyListener;
 import org.apache.ivy.core.module.descriptor.DefaultDependencyDescriptor;
 import org.apache.ivy.core.module.descriptor.DefaultModuleDescriptor;
 import org.apache.ivy.core.module.descriptor.ModuleDescriptor;
@@ -40,6 +43,7 @@ import org.apache.ivy.core.resolve.ResolveOptions;
 import org.apache.ivy.core.retrieve.RetrieveOptions;
 import org.apache.ivy.core.retrieve.RetrieveReport;
 import org.apache.ivy.core.settings.IvySettings;
+import org.apache.ivy.plugins.repository.TransferEvent;
 import org.apache.ivy.plugins.repository.TransferListener;
 import org.apache.ivy.plugins.resolver.ChainResolver;
 import org.apache.ivy.plugins.resolver.IBiblioResolver;
@@ -56,20 +60,27 @@ import org.slf4j.LoggerFactory;
 public class MavenArtifactResolver {
 
     private final SystemPathResolver pathResolver;
+    private Ivy ivy;
+    private PrintWriter out;
 
     @Inject
     public MavenArtifactResolver(SystemPathResolver pathResolver) {
         this.pathResolver = pathResolver;
+        this.ivy = ivyInstance();
+    }
+
+    public void setOut(PrintWriter out) {
+        this.out = out;
     }
 
     public ResolveResult resolve(
         Path mavenRoot,
         String grpId,
         String artifactId,
-        String version,
-        TransferListener transferListener
+        String version
     ) throws IOException {
-        Ivy ivy = ivyInstance(transferListener);
+        out.print("Resolve artifact " + grpId + ":" +
+            artifactId + ":" + version);
         ModuleDescriptor md = rootModuleDescriptor(grpId, artifactId, version);
 
         // Step 1: you always need to resolve before you can retrieve
@@ -109,14 +120,26 @@ public class MavenArtifactResolver {
             // TOOD
             throw new IOException(e);
         }
+        finally {
+            out.println();
+        }
     }
 
-    private Ivy ivyInstance(TransferListener transferListener) throws IOException {
-        File tmpDir = Files.createTempDirectory("ignite-installer-cache").toFile();
+    private Ivy ivyInstance() {
+        File tmpDir = null;
+        try {
+            tmpDir = Files.createTempDirectory("ignite-installer-cache").toFile();
+        }
+        catch (IOException e) {
+            throw new IgniteCLIException("Can't create temp directory for ivy");
+        }
         tmpDir.deleteOnExit();
 
         EventManager eventManager = new EventManager();
-        eventManager.addTransferListener(transferListener);
+        eventManager.addIvyListener(event -> {
+            out.print(".");
+            out.flush();
+        });
 
         IvySettings ivySettings = new IvySettings();
         ivySettings.setDefaultCache(tmpDir);
