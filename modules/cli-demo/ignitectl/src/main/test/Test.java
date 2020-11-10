@@ -32,7 +32,7 @@ public class Test {
         TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper =
             applicationContext.getBean(TransferListenerFactory.TransferEventListenerWrapper.class);
         PrintWriter pw = new PrintWriter(System.out);
-        moduleManager.addModule("server", config, transferEventListenerWrapper.produceListener(pw));
+        moduleManager.addModule("server", config, transferEventListenerWrapper.produceListener(pw), false);
 
     }
 }

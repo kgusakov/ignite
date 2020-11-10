@@ -2,6 +2,7 @@ package org.apache.ignite.internal.v2.module;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,13 +48,18 @@ public class ModuleManager {
         return new ModuleManager(readBuiltinModules());
     }
 
-    public void addModule(String name, Config config) {
+    public void addModule(String name, Config config, boolean cli) {
+        Path installPath;
+        if (cli)
+            installPath = config.cliLibsDir(info.version);
+        else
+            installPath = config.libsDir(info.version);
         if (name.startsWith("mvn:")) {
             MavenCoordinates mavenCoordinates = MavenCoordinates.of(name);
 
             try {
                 mavenArtifactResolver.resolve(
-                    config.libsDir(info.version),
+                    installPath,
                     mavenCoordinates.groupId,
                     mavenCoordinates.artifactId,
                     mavenCoordinates.version

@@ -32,7 +32,12 @@ public class ModuleCommand implements IgniteCommand, Runnable {
 
         @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
-        @CommandLine.Parameters(paramLabel = "artifact", description = "maven coordinates to add groupId:artifactId[:version]")
+        @CommandLine.Option(names = {"--cli"},
+            description = "set if you want to install cli module")
+        public boolean cli;
+
+        @CommandLine.Parameters(paramLabel = "module",
+            description = "can be a 'builtin module name (see module list)'|'mvn:groupId:artifactId:version'")
         public String moduleName;
 
         private final MavenArtifactResolver mavenArtifactResolver;
@@ -56,7 +61,7 @@ public class ModuleCommand implements IgniteCommand, Runnable {
             Config config = Config.readConfigFile(configFile.get());
 
             moduleManager.setOut(spec.commandLine().getOut());
-            moduleManager.addModule(moduleName, config);
+            moduleManager.addModule(moduleName, config, cli);
         }
     }
 

@@ -66,7 +66,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
     }
 
     private void installIgnite(Config config) {
-        moduleManager.addModule("server", config);
+        moduleManager.addModule("server", config, false);
     }
 
     private File initConfigFile() {
