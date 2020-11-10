@@ -37,13 +37,15 @@ import picocli.CommandLine;
  *
  */
 @CommandLine.Command(name = "ignite", mixinStandardHelpOptions = true,
-    description = "Control utility for Apache Ignite",
+    footer = "\n2020 Copyright(C) Apache Software Foundation",
+    headerHeading = "Control utility ignite is used to execute admin commands on cluster or run new local nodes.\n\n",
+    commandListHeading = "\n\nCommands has the following syntax:\n",
     versionProvider = VersionProvider.class,
     subcommands = {
-        BaselineCommand.class,
-        InitIgniteCommand.class,
         NodeCommand.class,
-        ModuleCommand.class
+        ModuleCommand.class,
+        InitIgniteCommand.class,
+        BaselineCommand.class,
     }
 )
 public class IgniteCli implements Runnable {

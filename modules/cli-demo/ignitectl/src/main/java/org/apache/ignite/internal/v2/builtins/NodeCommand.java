@@ -32,10 +32,10 @@ import picocli.CommandLine;
 import static org.apache.ignite.internal.v2.builtins.node.NodeManager.MAIN_CLASS;
 
 @CommandLine.Command(name = "node",
-    description = "Node actions", subcommands = {
+    description = "start|stop|list local nodes", subcommands = {
         NodeCommand.StartNodeCommand.class,
         NodeCommand.StopNodeCommand.class,
-    NodeCommand.ListNodesCommand.class})
+        NodeCommand.ListNodesCommand.class})
 public class NodeCommand implements Runnable {
 
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;

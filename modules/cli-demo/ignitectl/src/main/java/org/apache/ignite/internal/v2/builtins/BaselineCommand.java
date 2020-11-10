@@ -20,12 +20,12 @@ import org.apache.ignite.cli.common.IgniteCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "baseline", mixinStandardHelpOptions = true,
-    description = "Baseline actions")
+    description = "Print baseline information")
 public class BaselineCommand implements Runnable {
 
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     @Override public void run() {
-        this.spec.commandLine().getOut().println("baseline collect by default executed");
+        this.spec.commandLine().getOut().println("Here will be information about current baseline nodes");
     }
 }

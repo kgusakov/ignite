@@ -63,7 +63,7 @@ import static org.apache.ignite.internal.v2.IgniteCli.loadSubcommands;
  */
 @CommandLine.Command(
     name = "shell",
-    description = {"interactive mode"})
+    description = {"Run interactive shell"})
 public class ShellCommand implements Runnable {
 
     private final CommandLine.IFactory factory;

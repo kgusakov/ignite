@@ -14,7 +14,7 @@ import org.apache.ignite.internal.v2.module.ModuleManager;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "module",
-    description = "Module management commands",
+    description = "Manage Ignite modules",
     subcommands = {
         ModuleCommand.AddModuleCommand.class,
         ModuleCommand.ListModuleCommand.class})

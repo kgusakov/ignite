@@ -26,13 +26,13 @@ public class Test {
 
     @org.junit.Test
     public void test() throws IOException, InterruptedException {
-        ApplicationContext applicationContext = ApplicationContext.run();
-        ModuleManager moduleManager = applicationContext.getBean(ModuleManager.class);
-        Config config = new Config("/tmp", "/tmp");
-        TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper =
-            applicationContext.getBean(TransferListenerFactory.TransferEventListenerWrapper.class);
-        PrintWriter pw = new PrintWriter(System.out);
-        moduleManager.addModule("server", config, transferEventListenerWrapper.produceListener(pw), false);
+//        ApplicationContext applicationContext = ApplicationContext.run();
+//        ModuleManager moduleManager = applicationContext.getBean(ModuleManager.class);
+//        Config config = new Config("/tmp", "/tmp");
+//        TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper =
+//            applicationContext.getBean(TransferListenerFactory.TransferEventListenerWrapper.class);
+//        PrintWriter pw = new PrintWriter(System.out);
+//        moduleManager.addModule("server", config, transferEventListenerWrapper.produceListener(pw), false);
 
     }
 }
