@@ -9,7 +9,6 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import io.micronaut.context.annotation.Prototype;
-import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;

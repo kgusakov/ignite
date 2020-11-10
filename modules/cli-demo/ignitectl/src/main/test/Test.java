@@ -17,13 +17,9 @@
 import java.io.IOException;
 import java.io.PrintWriter;
 import io.micronaut.context.ApplicationContext;
-import org.apache.ignite.internal.installer.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
-import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ignite.internal.v2.module.ModuleManager;
 import org.apache.ignite.internal.v2.module.TransferListenerFactory;
-
-import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;
 
 public class Test {
 

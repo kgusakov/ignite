@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Properties;
 import javax.inject.Inject;
 import org.apache.ignite.cli.common.IgniteCommand;
-import org.apache.ignite.internal.installer.MavenArtifactResolver;
+import org.apache.ignite.internal.v2.module.MavenArtifactResolver;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.IgniteCLIException;

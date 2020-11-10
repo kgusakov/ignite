@@ -27,7 +27,7 @@ import org.apache.ignite.internal.cli.impl.AllCommandsImpl;
 import org.apache.ignite.internal.cli.impl.CommandFactory;
 import org.apache.ignite.internal.installer.ConfigurationManager;
 import org.apache.ignite.internal.installer.FragmentsRegistry;
-import org.apache.ignite.internal.installer.MavenArtifactResolver;
+import org.apache.ignite.internal.v2.MavenArtifactResolver;
 import org.apache.ignite.internal.installer.ModulesManager;
 import picocli.CommandLine;
 

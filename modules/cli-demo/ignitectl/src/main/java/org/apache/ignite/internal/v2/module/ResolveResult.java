@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.installer;
+package org.apache.ignite.internal.v2.module;
 
 import java.util.Collection;
 import java.util.Collections;
