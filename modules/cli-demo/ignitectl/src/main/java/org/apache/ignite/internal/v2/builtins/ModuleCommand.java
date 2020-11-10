@@ -55,10 +55,7 @@ public class ModuleCommand implements IgniteCommand, Runnable {
 
 
         @Override public void run() {
-            Optional<File> configFile = Config.searchConfigPath(pathResolver);
-            if (!configFile.isPresent())
-                throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
-            Config config = Config.readConfigFile(configFile.get());
+            Config config = Config.getConfigOrError(pathResolver);
 
             moduleManager.setOut(spec.commandLine().getOut());
             moduleManager.addModule(moduleName, config, cli);
@@ -84,11 +81,6 @@ public class ModuleCommand implements IgniteCommand, Runnable {
 
 
         @Override public void run() {
-            Optional<File> configFile = Config.searchConfigPath(pathResolver);
-            if (!configFile.isPresent())
-                throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
-            Config config = Config.readConfigFile(configFile.get());
-
             String[] headers = new String[] {"name", "description"};
 
             // TODO: ugly table should be changed

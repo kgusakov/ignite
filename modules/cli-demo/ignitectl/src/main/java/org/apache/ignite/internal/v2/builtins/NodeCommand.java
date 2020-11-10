@@ -64,10 +64,7 @@ public class NodeCommand implements Runnable {
         public String consistentId;
 
         @Override public void run() {
-            Optional<File> configFile = Config.searchConfigPath(pathResolver);
-            if (!configFile.isPresent())
-                throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
-            Config config = Config.readConfigFile(configFile.get());
+            Config config = Config.getConfigOrError(pathResolver);
             long pid = nodeManager.start(consistentId, config);
 
             spec.commandLine().getOut().println("Started ignite node '" + consistentId + "'");
@@ -93,11 +90,9 @@ public class NodeCommand implements Runnable {
         public List<String> pids;
 
         @Override public void run() {
-            Optional<File> configFile = Config.searchConfigPath(pathResolver);
-            if (!configFile.isPresent())
-                throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
+            Config config = Config.getConfigOrError(pathResolver);
             pids.forEach(p -> {
-                if (nodeManager.stopWait(p, Config.readConfigFile(configFile.get())))
+                if (nodeManager.stopWait(p, config))
                     spec.commandLine().getOut().println("Node with consistent id " + p + " was stopped");
                 else
                     spec.commandLine().getOut().println("Stop of node " + p + " was failed");
@@ -122,11 +117,9 @@ public class NodeCommand implements Runnable {
         }
 
         @Override public void run() {
-            Optional<File> configFile = Config.searchConfigPath(pathResolver);
-            if (!configFile.isPresent())
-                throw new IgniteCLIException("Can't find config file. Looks like you should run 'init' command first");
+            Config config = Config.getConfigOrError(pathResolver);
 
-            List<String> pids = nodeManager.getRunningNodes(Config.readConfigFile(configFile.get())).stream()
+            List<String> pids = nodeManager.getRunningNodes(config).stream()
                 .map(rn -> rn.pid + "\t" + rn.consistentId)
                 .collect(Collectors.toList());
 

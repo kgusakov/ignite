@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
+import org.apache.ignite.internal.v2.module.ErrorHandler;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.keymap.KeyMap;
@@ -86,6 +87,7 @@ public class ShellCommand implements Runnable {
             throw new IgniteCLIException("Can't initialize ignite cli in interactive mode", e);
         }
         CommandLine cmd = new CommandLine(commands, factory);
+        cmd.setExecutionExceptionHandler(new ErrorHandler());
         loadSubcommands(cmd, systemPathResolver, info);
         PicocliCommands picocliCommands = new PicocliCommands(workDir(), cmd) {
             @Override public Object invoke(CommandSession ses, String cmd, Object... args) throws Exception {

@@ -29,6 +29,7 @@ import org.apache.ignite.internal.v2.builtins.InitIgniteCommand;
 import org.apache.ignite.internal.v2.builtins.ModuleCommand;
 import org.apache.ignite.internal.v2.builtins.NodeCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
+import org.apache.ignite.internal.v2.module.ErrorHandler;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
 import picocli.CommandLine;
@@ -56,6 +57,7 @@ public class IgniteCli implements Runnable {
         ApplicationContext applicationContext = ApplicationContext.run();
         CommandLine.IFactory factory = applicationContext.createBean(CommandFactory.class);
         CommandLine cli = new CommandLine(IgniteCli.class, factory)
+            .setExecutionExceptionHandler(new ErrorHandler())
             .addSubcommand(applicationContext.createBean(ShellCommand.class));
 
         loadSubcommands(cli,

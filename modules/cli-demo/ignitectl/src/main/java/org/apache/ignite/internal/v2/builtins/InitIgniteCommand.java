@@ -72,7 +72,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
     private File initConfigFile() {
         Optional<File> configFile = Config.searchConfigPath(pathResolver);
         if (!configFile.isPresent()) {
-            Path newCfgPath = pathResolver.osCurrentDirPath().resolve(".ignitecfg");
+            Path newCfgPath = pathResolver.osHomeDirectoryPath().resolve(".ignitecfg");
             File newCfgFile = newCfgPath.toFile();
             try {
                 newCfgFile.createNewFile();

@@ -51,10 +51,6 @@ public class Config {
     }
 
     public static Optional<File> searchConfigPath(SystemPathResolver pathResolver) {
-        File cfgCurrentDir = pathResolver.osCurrentDirPath().resolve(".ignitecfg").toFile();
-        if (cfgCurrentDir.exists())
-            return Optional.of(cfgCurrentDir);
-
         File homeDirCfg = pathResolver.osHomeDirectoryPath().resolve(".ignitecfg").toFile();
         if (homeDirCfg.exists())
             return Optional.of(homeDirCfg);
@@ -64,7 +60,13 @@ public class Config {
             return Optional.of(globalDirCfg);
 
         return Optional.empty();
-
-
     }
+
+    public static Config getConfigOrError(SystemPathResolver pathResolver) {
+        Optional<File> configFile = Config.searchConfigPath(pathResolver);
+        if (!configFile.isPresent())
+            throw new IgniteCLIException("To execute node module/node management commands you must run 'init' first");
+        return Config.readConfigFile(configFile.get());
+    }
+
 }
