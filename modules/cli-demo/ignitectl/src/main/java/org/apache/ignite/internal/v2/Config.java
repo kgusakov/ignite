@@ -36,6 +36,10 @@ public class Config {
         return workDir.resolve("cli").resolve("pids");
     }
 
+    public Path installedModulesFile() {
+        return workDir.resolve("modules.json");
+    }
+
     public static Config readConfigFile(File configFile) {
         try (InputStream inputStream = new FileInputStream(configFile)) {
             Properties properties = new Properties();

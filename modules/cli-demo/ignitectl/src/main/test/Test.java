@@ -16,9 +16,12 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.FileSystems;
+import java.util.Arrays;
 import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.module.ModuleManager;
+import org.apache.ignite.internal.v2.module.ModuleStorage;
 
 public class Test {
 
@@ -26,13 +29,16 @@ public class Test {
 
     @org.junit.Test
     public void test() throws IOException, InterruptedException {
-//        ApplicationContext applicationContext = ApplicationContext.run();
-//        ModuleManager moduleManager = applicationContext.getBean(ModuleManager.class);
-//        Config config = new Config("/tmp", "/tmp");
-//        TransferListenerFactory.TransferEventListenerWrapper transferEventListenerWrapper =
-//            applicationContext.getBean(TransferListenerFactory.TransferEventListenerWrapper.class);
-//        PrintWriter pw = new PrintWriter(System.out);
-//        moduleManager.addModule("server", config, transferEventListenerWrapper.produceListener(pw), false);
+        ModuleStorage storage = new ModuleStorage(FileSystems.getDefault().getPath("/tmp/modules.json"));
+//        storage.saveModule(new ModuleStorage.ModuleDefinition(
+//            "newModule",
+//            Arrays.asList(FileSystems.getDefault().getPath("/tmp/artifact.jar")),
+//            ModuleStorage.SourceType.File,
+//            "file://file.jar"
+//        ));
+
+        System.out.println(storage.listInstalled());
+
 
     }
 }

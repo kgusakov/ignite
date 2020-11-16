@@ -24,9 +24,15 @@ public class ModuleManager {
     private MavenArtifactResolver mavenArtifactResolver;
     private Info info;
     private PrintWriter out;
+    private ModuleStorage moduleStorage;
 
     public ModuleManager(List<StandardModuleDefinition> modules) {
         this.modules = readBuiltinModules();
+    }
+
+    @Inject
+    public void setModuleStorage(ModuleStorage moduleStorage) {
+        this.moduleStorage = moduleStorage;
     }
 
     @Inject
@@ -58,12 +64,19 @@ public class ModuleManager {
             MavenCoordinates mavenCoordinates = MavenCoordinates.of(name);
 
             try {
-                mavenArtifactResolver.resolve(
+                ResolveResult resolveResult = mavenArtifactResolver.resolve(
                     installPath,
                     mavenCoordinates.groupId,
                     mavenCoordinates.artifactId,
                     mavenCoordinates.version
                 );
+                moduleStorage.saveModule(new ModuleStorage.ModuleDefinition(
+                    name,
+                    resolveResult.artifacts(),
+                    new ArrayList<>(),
+                    ModuleStorage.SourceType.Maven,
+                    name
+                ));
             }
             catch (IOException e) {
                 throw new IgniteCLIException("Error during resolving maven module " + name, e);
@@ -77,10 +90,11 @@ public class ModuleManager {
                 .stream()
                 .filter(m -> m.name.equals(name))
                 .findFirst().get();
+            ResolveResult libsResolveResults = null;
             for (String artifact: moduleDescription.artifacts) {
                 MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, info.version);
                 try {
-                    mavenArtifactResolver.resolve(
+                    libsResolveResults = mavenArtifactResolver.resolve(
                         config.libsDir(info.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
@@ -92,10 +106,11 @@ public class ModuleManager {
                 }
             }
 
+            ResolveResult cliResolvResults = null;
             for (String artifact: moduleDescription.cliArtifacts) {
                 MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, info.version);
                 try {
-                    mavenArtifactResolver.resolve(
+                    cliResolvResults = mavenArtifactResolver.resolve(
                         config.cliLibsDir(info.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
@@ -105,6 +120,19 @@ public class ModuleManager {
                 catch (IOException e) {
                     throw new IgniteCLIException("Error during resolving module " + name, e);
                 }
+            }
+
+            try {
+                moduleStorage.saveModule(new ModuleStorage.ModuleDefinition(
+                    name,
+                    (libsResolveResults == null ? new ArrayList<>():libsResolveResults.artifacts()),
+                    (cliResolvResults == null ? new ArrayList<>():cliResolvResults.artifacts()),
+                    ModuleStorage.SourceType.Maven,
+                    name
+                ));
+            }
+            catch (IOException e) {
+                throw new IgniteCLIException("Error during saving the installed module info");
             }
 
         }

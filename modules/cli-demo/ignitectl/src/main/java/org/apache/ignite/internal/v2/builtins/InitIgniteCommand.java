@@ -26,6 +26,14 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
     private final Info info;
     private final ModuleManager moduleManager;
 
+    @Inject
+    public InitIgniteCommand(SystemPathResolver pathResolver, Info info,
+        ModuleManager moduleManager) {
+        this.pathResolver = pathResolver;
+        this.info = info;
+        this.moduleManager = moduleManager;
+    }
+
     @Override public void run() {
         moduleManager.setOut(spec.commandLine().getOut());
         spec.commandLine().getOut().println("Init ignite directories...");
@@ -34,14 +42,6 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
         installIgnite(config);
         spec.commandLine().getOut().println();
         spec.commandLine().getOut().println("Apache Ignite version " + info.version + " sucessfully installed");
-    }
-
-    @Inject
-    public InitIgniteCommand(SystemPathResolver pathResolver, Info info,
-        ModuleManager moduleManager) {
-        this.pathResolver = pathResolver;
-        this.info = info;
-        this.moduleManager = moduleManager;
     }
 
     private Config initDirectories() {

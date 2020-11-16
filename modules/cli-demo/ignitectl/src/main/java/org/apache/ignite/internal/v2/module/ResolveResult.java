@@ -17,6 +17,7 @@
 
 package org.apache.ignite.internal.v2.module;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,13 +26,13 @@ import java.util.List;
  *
  */
 public class ResolveResult {
-    private List<String> artifacts;
+    private List<Path> artifacts;
 
-    public ResolveResult(List<String> artifacts) {
+    public ResolveResult(List<Path> artifacts) {
         this.artifacts = artifacts;
     }
 
-    public Collection<String> artifacts() {
-        return Collections.unmodifiableList(artifacts);
+    public List<Path> artifacts() {
+        return artifacts;
     }
 }
