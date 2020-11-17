@@ -29,7 +29,7 @@ public class Test {
 
     @org.junit.Test
     public void test() throws IOException, InterruptedException {
-        ModuleStorage storage = new ModuleStorage(FileSystems.getDefault().getPath("/tmp/modules.json"));
+        System.out.println(FileSystems.getDefault().getPath("file://tmp/modules.json").toAbsolutePath().toString());
 //        storage.saveModule(new ModuleStorage.ModuleDefinition(
 //            "newModule",
 //            Arrays.asList(FileSystems.getDefault().getPath("/tmp/artifact.jar")),
@@ -37,7 +37,6 @@ public class Test {
 //            "file://file.jar"
 //        ));
 
-        System.out.println(storage.listInstalled());
 
 
     }

@@ -118,7 +118,7 @@ public class MavenArtifactResolver {
 
 
             return new ResolveResult(
-                retrieveReport.getCopiedFiles().stream().map(File::toPath).collect(Collectors.toList())
+                retrieveReport.getRetrievedFiles().stream().map(File::toPath).collect(Collectors.toList())
             );
         }
         catch (ParseException e) {

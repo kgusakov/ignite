@@ -15,6 +15,7 @@ import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.VersionProvider;
+import org.apache.ignite.internal.v2.module.ModuleStorage;
 
 @Singleton
 public class NodeManager {
@@ -22,10 +23,13 @@ public class NodeManager {
     public static final String MAIN_CLASS = "org.apache.ignite.startup.cmdline.CommandLineStartup";
 
     private final Info info;
+    private final ModuleStorage moduleStorage;
 
     @Inject
-    public NodeManager(Info info) {
+    public NodeManager(
+        Info info, ModuleStorage moduleStorage) {
         this.info = info;
+        this.moduleStorage = moduleStorage;
     }
 
     public long start(String consistentId, Config config) {
@@ -52,12 +56,11 @@ public class NodeManager {
         }
     }
 
-    public static String classpath(Path dir) throws IOException {
-        String result = Files.walk(dir.toAbsolutePath())
-            .filter(f -> f.toString().endsWith(".jar"))
-            .map(f -> f.toAbsolutePath().toString())
+    public String classpath(Path dir) throws IOException {
+        return moduleStorage.listInstalled().modules.stream()
+            .flatMap(m -> m.artifacts.stream())
+            .map(m -> m.toAbsolutePath().toString())
             .collect(Collectors.joining(":"));
-        return result;
     }
 
     public void createPidFile(String consistentId, long pid, Config config) {

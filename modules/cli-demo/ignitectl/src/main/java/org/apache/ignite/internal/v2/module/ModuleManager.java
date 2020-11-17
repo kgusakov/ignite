@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import com.typesafe.config.ConfigFactory;
@@ -90,32 +91,32 @@ public class ModuleManager {
                 .stream()
                 .filter(m -> m.name.equals(name))
                 .findFirst().get();
-            ResolveResult libsResolveResults = null;
+            List<ResolveResult> libsResolveResults = new ArrayList<>();
             for (String artifact: moduleDescription.artifacts) {
                 MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, info.version);
                 try {
-                    libsResolveResults = mavenArtifactResolver.resolve(
+                    libsResolveResults.add(mavenArtifactResolver.resolve(
                         config.libsDir(info.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
                         mavenCoordinates.version
-                    );
+                    ));
                 }
                 catch (IOException e) {
                     throw new IgniteCLIException("Error during resolving standard module " + name, e);
                 }
             }
 
-            ResolveResult cliResolvResults = null;
+            List<ResolveResult> cliResolvResults = new ArrayList<>();
             for (String artifact: moduleDescription.cliArtifacts) {
                 MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, info.version);
                 try {
-                    cliResolvResults = mavenArtifactResolver.resolve(
+                    cliResolvResults.add(mavenArtifactResolver.resolve(
                         config.cliLibsDir(info.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
                         mavenCoordinates.version
-                    );
+                    ));
                 }
                 catch (IOException e) {
                     throw new IgniteCLIException("Error during resolving module " + name, e);
@@ -125,8 +126,8 @@ public class ModuleManager {
             try {
                 moduleStorage.saveModule(new ModuleStorage.ModuleDefinition(
                     name,
-                    (libsResolveResults == null ? new ArrayList<>():libsResolveResults.artifacts()),
-                    (cliResolvResults == null ? new ArrayList<>():cliResolvResults.artifacts()),
+                    (libsResolveResults == null ? new ArrayList<>():libsResolveResults.stream().flatMap(r -> r.artifacts().stream()).collect(Collectors.toList())),
+                    (cliResolvResults == null ? new ArrayList<>():cliResolvResults.stream().flatMap(r -> r.artifacts().stream()).collect(Collectors.toList())),
                     ModuleStorage.SourceType.Maven,
                     name
                 ));

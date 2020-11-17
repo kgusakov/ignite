@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
 import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;

@@ -4,48 +4,51 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
 @Singleton
 public class ModuleStorage {
 
-    private final Path moduleFile;
-
-    public ModuleStorage(Path moduleFile) {
-        this.moduleFile = moduleFile;
-    }
+    private final SystemPathResolver pathResolver;
 
     @Inject
-    public ModuleStorage(Config config) {
-        moduleFile = config.installedModulesFile();
+    public ModuleStorage(SystemPathResolver pathResolver) {
+        this.pathResolver = pathResolver;
+    }
+
+    private Path moduleFile() {
+        return Config.getConfigOrError(pathResolver).installedModulesFile();
     }
 
     public void saveModule(ModuleDefinition moduleDefinition) throws IOException {
         ModuleDefinitionsRegistry moduleDefinitionsRegistry = listInstalled();
         moduleDefinitionsRegistry.modules.add(moduleDefinition);
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writeValue(moduleFile.toFile(), moduleDefinitionsRegistry);
+        objectMapper.writeValue(moduleFile().toFile(), moduleDefinitionsRegistry);
     }
 
     public void removeModule(String name) throws IOException {
         ModuleDefinitionsRegistry moduleDefinitionsRegistry = listInstalled();
         moduleDefinitionsRegistry.modules.removeIf(m -> m.name.equals(name));
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writeValue(moduleFile.toFile(), moduleDefinitionsRegistry);
+        objectMapper.writeValue(moduleFile().toFile(), moduleDefinitionsRegistry);
     }
 
     public ModuleDefinitionsRegistry listInstalled() throws IOException {
-        if (!moduleFile.toFile().exists())
+        if (!moduleFile().toFile().exists())
             return new ModuleDefinitionsRegistry(new ArrayList<>());
         else {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(
-                moduleFile.toFile(),
+                moduleFile().toFile(),
                 ModuleDefinitionsRegistry.class);
         }
     }
@@ -77,6 +80,16 @@ public class ModuleStorage {
             this.cliArtifacts = cliArtifacts;
             this.type = type;
             this.source = source;
+        }
+
+        @JsonGetter("artifacts")
+        public List<String> getArtifacts() {
+            return artifacts.stream().map(a -> a.toAbsolutePath().toString()).collect(Collectors.toList());
+        }
+
+        @JsonGetter("cliArtifacts")
+        public List<String> getCliArtifacts() {
+            return cliArtifacts.stream().map(a -> a.toAbsolutePath().toString()).collect(Collectors.toList());
         }
     }
 
