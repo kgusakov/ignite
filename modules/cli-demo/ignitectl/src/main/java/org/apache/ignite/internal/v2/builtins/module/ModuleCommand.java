@@ -6,7 +6,7 @@ import com.mitchtalmadge.asciidata.table.ASCIITable;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ignite.internal.v2.Config;
-import org.apache.ignite.internal.v2.Info;
+import org.apache.ignite.internal.v2.CliVersionInfo;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "module",
@@ -66,13 +66,13 @@ public class ModuleCommand implements IgniteCommand, Runnable {
 
         private final MavenArtifactResolver mavenArtifactResolver;
         private final SystemPathResolver pathResolver;
-        private final Info info;
+        private final CliVersionInfo cliVersionInfo;
 
         @Inject
-        public ListModuleCommand(MavenArtifactResolver mavenArtifactResolver, SystemPathResolver pathResolver, Info info) {
+        public ListModuleCommand(MavenArtifactResolver mavenArtifactResolver, SystemPathResolver pathResolver, CliVersionInfo cliVersionInfo) {
             this.mavenArtifactResolver = mavenArtifactResolver;
             this.pathResolver = pathResolver;
-            this.info = info;
+            this.cliVersionInfo = cliVersionInfo;
         }
 
 

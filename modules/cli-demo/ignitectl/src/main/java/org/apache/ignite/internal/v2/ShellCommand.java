@@ -38,7 +38,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
-import org.apache.ignite.internal.v2.builtins.module.ErrorHandler;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.keymap.KeyMap;
@@ -69,13 +68,13 @@ public class ShellCommand implements Runnable {
 
     private final CommandLine.IFactory factory;
     private final SystemPathResolver systemPathResolver;
-    private final Info info;
+    private final CliVersionInfo cliVersionInfo;
 
     @Inject
-    public ShellCommand(CommandLine.IFactory factory, SystemPathResolver systemPathResolver, Info info) {
+    public ShellCommand(CommandLine.IFactory factory, SystemPathResolver systemPathResolver, CliVersionInfo cliVersionInfo) {
         this.factory = factory;
         this.systemPathResolver = systemPathResolver;
-        this.info = info;
+        this.cliVersionInfo = cliVersionInfo;
     }
 
     @Override public void run() {
@@ -88,7 +87,7 @@ public class ShellCommand implements Runnable {
         }
         CommandLine cmd = new CommandLine(commands, factory);
         cmd.setExecutionExceptionHandler(new ErrorHandler());
-        loadSubcommands(cmd, systemPathResolver, info);
+        loadSubcommands(cmd, systemPathResolver, cliVersionInfo);
         PicocliCommands picocliCommands = new PicocliCommands(workDir(), cmd) {
             @Override public Object invoke(CommandSession ses, String cmd, Object... args) throws Exception {
                 return execute(ses, cmd, (String[])args);

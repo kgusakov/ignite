@@ -25,14 +25,14 @@ import picocli.CommandLine;
 @Introspected
 public class VersionProvider implements CommandLine.IVersionProvider {
 
-    private final Info info;
+    private final CliVersionInfo cliVersionInfo;
 
     @Inject
-    public VersionProvider(Info info) {
-        this.info = info;
+    public VersionProvider(CliVersionInfo cliVersionInfo) {
+        this.cliVersionInfo = cliVersionInfo;
     }
 
     @Override public String[] getVersion() throws Exception {
-        return new String[] {info.version};
+        return new String[] {cliVersionInfo.version};
     }
 }

@@ -8,13 +8,13 @@ import io.micronaut.core.annotation.Introspected;
 
 @Singleton
 @Introspected
-public class Info {
+public class CliVersionInfo {
 
     public final String groupId;
     public final String version;
 
-    public Info() {
-        try (InputStream inputStream = Info.class.getResourceAsStream("/version.properties")) {
+    public CliVersionInfo() {
+        try (InputStream inputStream = CliVersionInfo.class.getResourceAsStream("/version.properties")) {
             Properties prop = new Properties();
             prop.load(inputStream);
             groupId = prop.getProperty("group.id", "undefined");
@@ -25,7 +25,7 @@ public class Info {
         }
     }
 
-    public Info(String groupId, String artifactId, String version) {
+    public CliVersionInfo(String groupId, String artifactId, String version) {
         this.groupId = groupId;
         this.version = version;
     }

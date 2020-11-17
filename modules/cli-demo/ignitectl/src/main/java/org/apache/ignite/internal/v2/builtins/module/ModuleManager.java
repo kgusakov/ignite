@@ -14,14 +14,14 @@ import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
-import org.apache.ignite.internal.v2.Info;
+import org.apache.ignite.internal.v2.CliVersionInfo;
 
 @Singleton
 public class ModuleManager {
 
     private List<StandardModuleDefinition> modules;
     private MavenArtifactResolver mavenArtifactResolver;
-    private Info info;
+    private CliVersionInfo cliVersionInfo;
     private PrintWriter out;
     private ModuleStorage moduleStorage;
 
@@ -40,8 +40,8 @@ public class ModuleManager {
     }
 
     @Inject
-    public void setInfo(Info info) {
-        this.info = info;
+    public void setInfo(CliVersionInfo cliVersionInfo) {
+        this.cliVersionInfo = cliVersionInfo;
     }
 
     public void setOut(PrintWriter out) {
@@ -56,9 +56,9 @@ public class ModuleManager {
     public void addModule(String name, Config config, boolean cli) {
         Path installPath;
         if (cli)
-            installPath = config.cliLibsDir(info.version);
+            installPath = config.cliLibsDir(cliVersionInfo.version);
         else
-            installPath = config.libsDir(info.version);
+            installPath = config.libsDir(cliVersionInfo.version);
         if (name.startsWith("mvn:")) {
             MavenCoordinates mavenCoordinates = MavenCoordinates.of(name);
 
@@ -91,10 +91,10 @@ public class ModuleManager {
                 .findFirst().get();
             List<ResolveResult> libsResolveResults = new ArrayList<>();
             for (String artifact: moduleDescription.artifacts) {
-                MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, info.version);
+                MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, cliVersionInfo.version);
                 try {
                     libsResolveResults.add(mavenArtifactResolver.resolve(
-                        config.libsDir(info.version),
+                        config.libsDir(cliVersionInfo.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
                         mavenCoordinates.version
@@ -107,10 +107,10 @@ public class ModuleManager {
 
             List<ResolveResult> cliResolvResults = new ArrayList<>();
             for (String artifact: moduleDescription.cliArtifacts) {
-                MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, info.version);
+                MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, cliVersionInfo.version);
                 try {
                     cliResolvResults.add(mavenArtifactResolver.resolve(
-                        config.cliLibsDir(info.version),
+                        config.cliLibsDir(cliVersionInfo.version),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
                         mavenCoordinates.version

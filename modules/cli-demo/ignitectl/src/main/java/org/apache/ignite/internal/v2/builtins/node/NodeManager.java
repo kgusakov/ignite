@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.ignite.internal.v2.CliVersionInfo;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
-import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.builtins.module.ModuleStorage;
 
 @Singleton
@@ -21,13 +21,13 @@ public class NodeManager {
 
     public static final String MAIN_CLASS = "org.apache.ignite.startup.cmdline.CommandLineStartup";
 
-    private final Info info;
+    private final CliVersionInfo cliVersionInfo;
     private final ModuleStorage moduleStorage;
 
     @Inject
     public NodeManager(
-        Info info, ModuleStorage moduleStorage) {
-        this.info = info;
+        CliVersionInfo cliVersionInfo, ModuleStorage moduleStorage) {
+        this.cliVersionInfo = cliVersionInfo;
         this.moduleStorage = moduleStorage;
     }
 
@@ -41,7 +41,7 @@ public class NodeManager {
 
             ProcessBuilder pb = new ProcessBuilder("java",
                 "-DIGNITE_OVERRIDE_CONSISTENT_ID=" + consistentId,
-                "-cp", classpath(config.libsDir(info.version)),
+                "-cp", classpath(config.libsDir(cliVersionInfo.version)),
                 MAIN_CLASS, "config/default-config.xml"
             )
                 .redirectError(logFile.toFile())

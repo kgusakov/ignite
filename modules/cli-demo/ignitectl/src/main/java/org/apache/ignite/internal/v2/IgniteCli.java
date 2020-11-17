@@ -29,7 +29,6 @@ import org.apache.ignite.internal.v2.builtins.InitIgniteCommand;
 import org.apache.ignite.internal.v2.builtins.module.ModuleCommand;
 import org.apache.ignite.internal.v2.builtins.node.NodeCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
-import org.apache.ignite.internal.v2.builtins.module.ErrorHandler;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
 import picocli.CommandLine;
@@ -62,7 +61,7 @@ public class IgniteCli implements Runnable {
 
         loadSubcommands(cli,
             applicationContext.createBean(SystemPathResolver.class),
-            applicationContext.createBean(Info.class));
+            applicationContext.createBean(CliVersionInfo.class));
         System.exit(cli.execute(args));
     }
 
@@ -74,11 +73,11 @@ public class IgniteCli implements Runnable {
         this.reader = (LineReaderImpl) reader;
     }
 
-    public static void loadSubcommands(CommandLine commandLine, SystemPathResolver pathResolver, Info info) {
+    public static void loadSubcommands(CommandLine commandLine, SystemPathResolver pathResolver, CliVersionInfo cliVersionInfo) {
         Optional<File> configOpt = Config.searchConfigPath(pathResolver);
         if (configOpt.isPresent()) {
             Config cfg = Config.readConfigFile(configOpt.get());
-            URL[] urls = SystemPathResolver.list(cfg.cliLibsDir(info.version));
+            URL[] urls = SystemPathResolver.list(cfg.cliLibsDir(cliVersionInfo.version));
             ClassLoader classLoader = new URLClassLoader(urls,
                 IgniteCli.class.getClassLoader());
             ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class, classLoader);

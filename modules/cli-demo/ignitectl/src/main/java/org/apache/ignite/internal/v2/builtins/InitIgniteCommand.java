@@ -9,7 +9,7 @@ import java.util.Properties;
 import javax.inject.Inject;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.v2.Config;
-import org.apache.ignite.internal.v2.Info;
+import org.apache.ignite.internal.v2.CliVersionInfo;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.builtins.module.ModuleManager;
 import org.jetbrains.annotations.NotNull;
@@ -22,14 +22,14 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     private final SystemPathResolver pathResolver;
-    private final Info info;
+    private final CliVersionInfo cliVersionInfo;
     private final ModuleManager moduleManager;
 
     @Inject
-    public InitIgniteCommand(SystemPathResolver pathResolver, Info info,
+    public InitIgniteCommand(SystemPathResolver pathResolver, CliVersionInfo cliVersionInfo,
         ModuleManager moduleManager) {
         this.pathResolver = pathResolver;
-        this.info = info;
+        this.cliVersionInfo = cliVersionInfo;
         this.moduleManager = moduleManager;
     }
 
@@ -40,7 +40,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
         spec.commandLine().getOut().println("Download and install current ignite version...");
         installIgnite(config);
         spec.commandLine().getOut().println();
-        spec.commandLine().getOut().println("Apache Ignite version " + info.version + " sucessfully installed");
+        spec.commandLine().getOut().println("Apache Ignite version " + cliVersionInfo.version + " sucessfully installed");
     }
 
     private Config initDirectories() {
@@ -52,13 +52,13 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
             throw new IgniteCLIException("Can't create working directory: " + cfg.workDir);
 
 
-        File igniteBin =  cfg.libsDir(info.version).toFile();
+        File igniteBin =  cfg.libsDir(cliVersionInfo.version).toFile();
         if (!(igniteBin.exists() || igniteBin.mkdirs()))
-            throw new IgniteCLIException("Can't create a directory for ignite modules: " + cfg.libsDir(info.version));
+            throw new IgniteCLIException("Can't create a directory for ignite modules: " + cfg.libsDir(cliVersionInfo.version));
 
-        File igniteBinCli = cfg.cliLibsDir(info.version).toFile();
+        File igniteBinCli = cfg.cliLibsDir(cliVersionInfo.version).toFile();
         if (!(igniteBinCli.exists() || igniteBinCli.mkdirs()))
-            throw new IgniteCLIException("Can't create a directory for cli modules: " + cfg.cliLibsDir(info.version));
+            throw new IgniteCLIException("Can't create a directory for cli modules: " + cfg.cliLibsDir(cliVersionInfo.version));
 
         return cfg;
 

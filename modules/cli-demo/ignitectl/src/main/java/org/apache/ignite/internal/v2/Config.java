@@ -4,14 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
 import static org.apache.ignite.internal.v2.builtins.PathHelpers.pathOf;

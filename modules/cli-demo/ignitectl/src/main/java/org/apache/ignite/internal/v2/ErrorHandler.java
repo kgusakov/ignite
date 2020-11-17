@@ -1,6 +1,5 @@
-package org.apache.ignite.internal.v2.builtins.module;
+package org.apache.ignite.internal.v2;
 
-import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

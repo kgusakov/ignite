@@ -19,8 +19,8 @@ package org.apache.ignite.internal.v2.builtins.node;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.apache.ignite.internal.v2.CliVersionInfo;
 import org.apache.ignite.internal.v2.Config;
-import org.apache.ignite.internal.v2.Info;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import picocli.CommandLine;
 
@@ -42,13 +42,13 @@ public class NodeCommand implements Runnable {
 
         @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
-        private final Info info;
+        private final CliVersionInfo cliVersionInfo;
         private final SystemPathResolver pathResolver;
         private final NodeManager nodeManager;
 
         @Inject
-        public StartNodeCommand(Info info, SystemPathResolver pathResolver, NodeManager nodeManager) {
-            this.info = info;
+        public StartNodeCommand(CliVersionInfo cliVersionInfo, SystemPathResolver pathResolver, NodeManager nodeManager) {
+            this.cliVersionInfo = cliVersionInfo;
             this.pathResolver = pathResolver;
             this.nodeManager = nodeManager;
         }
