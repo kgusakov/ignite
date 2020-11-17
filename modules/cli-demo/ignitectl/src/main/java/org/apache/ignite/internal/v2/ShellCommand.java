@@ -38,7 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
-import org.apache.ignite.internal.v2.module.ErrorHandler;
+import org.apache.ignite.internal.v2.builtins.module.ErrorHandler;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.keymap.KeyMap;

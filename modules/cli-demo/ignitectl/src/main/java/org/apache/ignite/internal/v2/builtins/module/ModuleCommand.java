@@ -1,16 +1,12 @@
-package org.apache.ignite.internal.v2.builtins;
+package org.apache.ignite.internal.v2.builtins.module;
 
-import java.io.File;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import com.mitchtalmadge.asciidata.table.ASCIITable;
 import org.apache.ignite.cli.common.IgniteCommand;
-import org.apache.ignite.internal.v2.module.MavenArtifactResolver;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ignite.internal.v2.Config;
-import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
-import org.apache.ignite.internal.v2.module.ModuleManager;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "module",

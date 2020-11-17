@@ -1,4 +1,4 @@
-package org.apache.ignite.internal.v2.module;
+package org.apache.ignite.internal.v2.builtins.module;
 
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.slf4j.Logger;

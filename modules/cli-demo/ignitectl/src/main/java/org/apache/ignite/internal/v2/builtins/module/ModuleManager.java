@@ -1,4 +1,4 @@
-package org.apache.ignite.internal.v2.module;
+package org.apache.ignite.internal.v2.builtins.module;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,11 +12,9 @@ import javax.inject.Singleton;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
-import io.micronaut.context.annotation.Prototype;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
-import org.apache.ivy.plugins.repository.TransferListener;
 
 @Singleton
 public class ModuleManager {

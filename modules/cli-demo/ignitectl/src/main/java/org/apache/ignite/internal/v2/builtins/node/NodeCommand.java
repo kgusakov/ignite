@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.v2.builtins;
+package org.apache.ignite.internal.v2.builtins.node;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.v2.Config;
-import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
-import org.apache.ignite.internal.v2.builtins.node.NodeManager;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import picocli.CommandLine;
-
-import static org.apache.ignite.internal.v2.builtins.node.NodeManager.MAIN_CLASS;
 
 @CommandLine.Command(name = "node",
     description = "start|stop|list local nodes", subcommands = {

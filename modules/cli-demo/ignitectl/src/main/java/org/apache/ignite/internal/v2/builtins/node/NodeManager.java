@@ -14,8 +14,7 @@ import javax.inject.Singleton;
 import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.Info;
-import org.apache.ignite.internal.v2.VersionProvider;
-import org.apache.ignite.internal.v2.module.ModuleStorage;
+import org.apache.ignite.internal.v2.builtins.module.ModuleStorage;
 
 @Singleton
 public class NodeManager {

@@ -1,4 +1,4 @@
-package org.apache.ignite.internal.v2.module;
+package org.apache.ignite.internal.v2.builtins.module;
 
 import java.io.IOException;
 import java.nio.file.Path;
