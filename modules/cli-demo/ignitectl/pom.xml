@@ -155,7 +155,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>org.apache.ignite.internal.v2.IgniteCli</mainClass>
+                            <mainClass>org.apache.ignite.internal.v2.IgniteCliSpec</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

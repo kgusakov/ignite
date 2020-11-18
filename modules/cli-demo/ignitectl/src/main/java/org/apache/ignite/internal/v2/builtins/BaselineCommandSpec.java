@@ -21,7 +21,7 @@ import picocli.CommandLine;
 
 @CommandLine.Command(name = "baseline", mixinStandardHelpOptions = true,
     description = "Print baseline information")
-public class BaselineCommand implements Runnable {
+public class BaselineCommandSpec implements Runnable {
 
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 

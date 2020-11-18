@@ -1,4 +1,4 @@
-package org.apache.ignite.internal.v2.builtins;
+package org.apache.ignite.internal.v2.builtins.init;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -7,19 +7,15 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 import javax.inject.Inject;
-import org.apache.ignite.cli.common.IgniteCommand;
-import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.CliVersionInfo;
+import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.IgniteCLIException;
+import org.apache.ignite.internal.v2.AbstractCliCommand;
+import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.apache.ignite.internal.v2.builtins.module.ModuleManager;
 import org.jetbrains.annotations.NotNull;
-import picocli.CommandLine;
 
-@CommandLine.Command(name = "init",
-    description = "Install Apache Ignite at the current directory")
-public class InitIgniteCommand implements Runnable, IgniteCommand {
-
-    @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+public class InitIgniteCommand extends AbstractCliCommand {
 
     private final SystemPathResolver pathResolver;
     private final CliVersionInfo cliVersionInfo;
@@ -33,14 +29,14 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
         this.moduleManager = moduleManager;
     }
 
-    @Override public void run() {
-        moduleManager.setOut(spec.commandLine().getOut());
-        spec.commandLine().getOut().println("Init ignite directories...");
+    public void run() {
+        moduleManager.setOut(out);
+        out.println("Init ignite directories...");
         Config config = initDirectories();
-        spec.commandLine().getOut().println("Download and install current ignite version...");
+        out.println("Download and install current ignite version...");
         installIgnite(config);
-        spec.commandLine().getOut().println();
-        spec.commandLine().getOut().println("Apache Ignite version " + cliVersionInfo.version + " sucessfully installed");
+        out.println();
+        out.println("Apache Ignite version " + cliVersionInfo.version + " sucessfully installed");
     }
 
     private Config initDirectories() {
@@ -88,7 +84,7 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
             return configFile.get();
     }
 
-    private void fillNewConfigFile(File f, @NotNull  Path binDir, @NotNull Path workDir) {
+    private void fillNewConfigFile(File f, @NotNull Path binDir, @NotNull Path workDir) {
         try (FileWriter fileWriter = new FileWriter(f)) {
             Properties properties = new Properties();
             properties.setProperty("bin", binDir.toString());
@@ -99,5 +95,4 @@ public class InitIgniteCommand implements Runnable, IgniteCommand {
             throw new IgniteCLIException("Can't write to ignitecfg file");
         }
     }
-
 }

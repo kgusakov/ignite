@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
+import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
@@ -56,7 +57,7 @@ import org.jline.widget.TailTipWidgets;
 import picocli.CommandLine;
 import picocli.shell.jline3.PicocliCommands;
 
-import static org.apache.ignite.internal.v2.IgniteCli.loadSubcommands;
+import static org.apache.ignite.internal.v2.IgniteCliSpec.loadSubcommands;
 
 /**
  * Top-level commands available in REPL.
@@ -64,30 +65,25 @@ import static org.apache.ignite.internal.v2.IgniteCli.loadSubcommands;
 @CommandLine.Command(
     name = "shell",
     description = {"Run interactive shell"})
-public class ShellCommand implements Runnable {
-
-    private final CommandLine.IFactory factory;
-    private final SystemPathResolver systemPathResolver;
-    private final CliVersionInfo cliVersionInfo;
+public class ShellCommandSpec implements Runnable {
 
     @Inject
-    public ShellCommand(CommandLine.IFactory factory, SystemPathResolver systemPathResolver, CliVersionInfo cliVersionInfo) {
-        this.factory = factory;
-        this.systemPathResolver = systemPathResolver;
-        this.cliVersionInfo = cliVersionInfo;
-    }
+    private ApplicationContext applicationContext;
 
     @Override public void run() {
-        IgniteCli commands;
+        CommandLine.IFactory factory = applicationContext.createBean(CommandFactory.class);
+        IgniteCliSpec commands;
         try {
-            commands = factory.create(IgniteCli.class);
+            commands = factory.create(IgniteCliSpec.class);
         }
         catch (Exception e) {
             throw new IgniteCLIException("Can't initialize ignite cli in interactive mode", e);
         }
         CommandLine cmd = new CommandLine(commands, factory);
         cmd.setExecutionExceptionHandler(new ErrorHandler());
-        loadSubcommands(cmd, systemPathResolver, cliVersionInfo);
+        loadSubcommands(cmd,
+            applicationContext.createBean(SystemPathResolver.class),
+            applicationContext.createBean(CliVersionInfo.class));
         PicocliCommands picocliCommands = new PicocliCommands(workDir(), cmd) {
             @Override public Object invoke(CommandSession ses, String cmd, Object... args) throws Exception {
                 return execute(ses, cmd, (String[])args);
@@ -96,7 +92,7 @@ public class ShellCommand implements Runnable {
 
         Parser parser = new DefaultParser();
         try (Terminal terminal = TerminalBuilder.builder().build()) {
-            SystemRegistry systemRegistry = new SystemRegistryImpl(parser, terminal, ShellCommand::workDir, null);
+            SystemRegistry systemRegistry = new SystemRegistryImpl(parser, terminal, ShellCommandSpec::workDir, null);
             systemRegistry.setCommandRegistries(picocliCommands);
 
             LineReader reader = LineReaderBuilder.builder()

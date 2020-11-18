@@ -24,10 +24,10 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.cli.common.IgniteCommand;
-import org.apache.ignite.internal.v2.builtins.BaselineCommand;
-import org.apache.ignite.internal.v2.builtins.InitIgniteCommand;
-import org.apache.ignite.internal.v2.builtins.module.ModuleCommand;
-import org.apache.ignite.internal.v2.builtins.node.NodeCommand;
+import org.apache.ignite.internal.v2.builtins.BaselineCommandSpec;
+import org.apache.ignite.internal.v2.builtins.init.InitIgniteCommandSpec;
+import org.apache.ignite.internal.v2.builtins.module.ModuleCommandSpec;
+import org.apache.ignite.internal.v2.builtins.node.NodeCommandSpec;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;
@@ -42,22 +42,22 @@ import picocli.CommandLine;
     commandListHeading = "\n\nCommands has the following syntax:\n",
     versionProvider = VersionProvider.class,
     subcommands = {
-        NodeCommand.class,
-        ModuleCommand.class,
-        InitIgniteCommand.class,
-        BaselineCommand.class,
+        NodeCommandSpec.class,
+        ModuleCommandSpec.class,
+        InitIgniteCommandSpec.class,
+        BaselineCommandSpec.class,
     }
 )
-public class IgniteCli implements Runnable {
+public class IgniteCliSpec implements Runnable {
     public LineReaderImpl reader;
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     public static void main(String... args) {
         ApplicationContext applicationContext = ApplicationContext.run();
         CommandLine.IFactory factory = applicationContext.createBean(CommandFactory.class);
-        CommandLine cli = new CommandLine(IgniteCli.class, factory)
+        CommandLine cli = new CommandLine(IgniteCliSpec.class, factory)
             .setExecutionExceptionHandler(new ErrorHandler())
-            .addSubcommand(applicationContext.createBean(ShellCommand.class));
+            .addSubcommand(applicationContext.createBean(ShellCommandSpec.class));
 
         loadSubcommands(cli,
             applicationContext.createBean(SystemPathResolver.class),
@@ -79,7 +79,7 @@ public class IgniteCli implements Runnable {
             Config cfg = Config.readConfigFile(configOpt.get());
             URL[] urls = SystemPathResolver.list(cfg.cliLibsDir(cliVersionInfo.version));
             ClassLoader classLoader = new URLClassLoader(urls,
-                IgniteCli.class.getClassLoader());
+                IgniteCliSpec.class.getClassLoader());
             ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class, classLoader);
             loader.reload();
             for (IgniteCommand igniteCommand: loader) {
