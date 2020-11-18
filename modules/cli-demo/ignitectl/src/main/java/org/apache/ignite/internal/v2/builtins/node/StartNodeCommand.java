@@ -20,10 +20,7 @@ public class StartNodeCommand extends AbstractCliCommand {
         this.nodeManager = nodeManager;
     }
 
-    @CommandLine.Parameters(paramLabel = "consistent-id", description = "ConsistentId for new node")
-    public String consistentId;
-
-    public void start() {
+    public void start(String consistentId) {
         Config config = Config.getConfigOrError(pathResolver);
         long pid = nodeManager.start(consistentId, config);
 

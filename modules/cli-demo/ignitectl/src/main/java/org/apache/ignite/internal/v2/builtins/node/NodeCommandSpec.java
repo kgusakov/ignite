@@ -30,6 +30,7 @@ public class NodeCommandSpec implements Runnable {
 
     public @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
+
     @Override public void run() {
         throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
     }
@@ -50,7 +51,7 @@ public class NodeCommandSpec implements Runnable {
             StartNodeCommand startNodeCommand = applicationContext.createBean(StartNodeCommand.class);
 
             startNodeCommand.setOut(spec.commandLine().getOut());
-            startNodeCommand.start();
+            startNodeCommand.start(consistentId);
         }
     }
 
