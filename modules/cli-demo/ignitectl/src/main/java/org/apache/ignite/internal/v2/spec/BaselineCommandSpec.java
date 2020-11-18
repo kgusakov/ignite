@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.v2.builtins;
+package org.apache.ignite.internal.v2.spec;
 
 import org.apache.ignite.cli.common.IgniteCommand;
 import picocli.CommandLine;

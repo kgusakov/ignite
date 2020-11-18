@@ -1,8 +1,10 @@
-package org.apache.ignite.internal.v2.builtins.module;
+package org.apache.ignite.internal.v2.spec;
 
 import javax.inject.Inject;
 import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.cli.common.IgniteCommand;
+import org.apache.ignite.internal.v2.builtins.module.AddModuleCommand;
+import org.apache.ignite.internal.v2.builtins.module.ListModuleCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "module",

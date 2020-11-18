@@ -1,4 +1,4 @@
-package org.apache.ignite.internal.v2.builtins.init;
+package org.apache.ignite.internal.v2.spec;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,6 +13,7 @@ import org.apache.ignite.internal.v2.Config;
 import org.apache.ignite.internal.v2.CliVersionInfo;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
+import org.apache.ignite.internal.v2.builtins.init.InitIgniteCommand;
 import org.apache.ignite.internal.v2.builtins.module.ModuleManager;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;

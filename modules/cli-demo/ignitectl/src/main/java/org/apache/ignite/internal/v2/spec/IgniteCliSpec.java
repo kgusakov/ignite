@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.v2;
+package org.apache.ignite.internal.v2.spec;
 
 import java.io.File;
 import java.net.URL;
@@ -24,9 +24,11 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.cli.common.IgniteCommand;
-import org.apache.ignite.internal.v2.builtins.BaselineCommandSpec;
-import org.apache.ignite.internal.v2.builtins.init.InitIgniteCommandSpec;
-import org.apache.ignite.internal.v2.builtins.module.ModuleCommandSpec;
+import org.apache.ignite.internal.v2.CliVersionInfo;
+import org.apache.ignite.internal.v2.CommandFactory;
+import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.ErrorHandler;
+import org.apache.ignite.internal.v2.VersionProvider;
 import org.apache.ignite.internal.v2.builtins.node.NodeCommandSpec;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.jline.reader.LineReader;

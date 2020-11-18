@@ -31,13 +31,17 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.v2;
+package org.apache.ignite.internal.v2.spec;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
 import io.micronaut.context.ApplicationContext;
+import org.apache.ignite.internal.v2.CliVersionInfo;
+import org.apache.ignite.internal.v2.CommandFactory;
+import org.apache.ignite.internal.v2.ErrorHandler;
+import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
@@ -57,7 +61,7 @@ import org.jline.widget.TailTipWidgets;
 import picocli.CommandLine;
 import picocli.shell.jline3.PicocliCommands;
 
-import static org.apache.ignite.internal.v2.IgniteCliSpec.loadSubcommands;
+import static org.apache.ignite.internal.v2.spec.IgniteCliSpec.loadSubcommands;
 
 /**
  * Top-level commands available in REPL.
