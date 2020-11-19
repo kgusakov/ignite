@@ -19,36 +19,33 @@ import org.apache.ignite.internal.v2.CliVersionInfo;
 @Singleton
 public class ModuleManager {
 
-    private List<StandardModuleDefinition> modules;
-    private MavenArtifactResolver mavenArtifactResolver;
-    private CliVersionInfo cliVersionInfo;
-    private ModuleStorage moduleStorage;
+    private final List<StandardModuleDefinition> modules;
+    private final MavenArtifactResolver mavenArtifactResolver;
+    private final CliVersionInfo cliVersionInfo;
+    private final ModuleStorage moduleStorage;
 
-    public ModuleManager(List<StandardModuleDefinition> modules) {
+    @Inject
+    public ModuleManager(MavenArtifactResolver mavenArtifactResolver, CliVersionInfo cliVersionInfo,
+        ModuleStorage moduleStorage) {
+        this(readBuiltinModules(),
+            mavenArtifactResolver,
+            cliVersionInfo,
+            moduleStorage
+        );
+    }
+
+    public ModuleManager(
+        List<StandardModuleDefinition> modules,
+        MavenArtifactResolver mavenArtifactResolver, CliVersionInfo cliVersionInfo,
+        ModuleStorage moduleStorage) {
         this.modules = readBuiltinModules();
-    }
-
-    @Inject
-    public void setModuleStorage(ModuleStorage moduleStorage) {
-        this.moduleStorage = moduleStorage;
-    }
-
-    @Inject
-    public void setMavenArtifactResolver(MavenArtifactResolver resolver) {
-        this.mavenArtifactResolver = resolver;
-    }
-
-    @Inject
-    public void setInfo(CliVersionInfo cliVersionInfo) {
+        this.mavenArtifactResolver = mavenArtifactResolver;
         this.cliVersionInfo = cliVersionInfo;
+        this.moduleStorage = moduleStorage;
     }
 
     public void setOut(PrintWriter out) {
         mavenArtifactResolver.setOut(out);
-    }
-
-    public static ModuleManager load() {
-        return new ModuleManager(readBuiltinModules());
     }
 
     public void addModule(String name, IgnitePaths ignitePaths, boolean cli) {
@@ -122,8 +119,8 @@ public class ModuleManager {
             try {
                 moduleStorage.saveModule(new ModuleStorage.ModuleDefinition(
                     name,
-                    (libsResolveResults == null ? new ArrayList<>():libsResolveResults.stream().flatMap(r -> r.artifacts().stream()).collect(Collectors.toList())),
-                    (cliResolvResults == null ? new ArrayList<>():cliResolvResults.stream().flatMap(r -> r.artifacts().stream()).collect(Collectors.toList())),
+                    libsResolveResults.stream().flatMap(r -> r.artifacts().stream()).collect(Collectors.toList()),
+                    cliResolvResults.stream().flatMap(r -> r.artifacts().stream()).collect(Collectors.toList()),
                     ModuleStorage.SourceType.Maven,
                     name
                 ));

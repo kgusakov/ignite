@@ -2,11 +2,13 @@ package org.apache.ignite.internal.v2.builtins.node;
 
 import java.util.List;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.ignite.internal.v2.CliPathsConfigLoader;
 import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.AbstractCliCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
+@Singleton
 public class StopNodeCommand extends AbstractCliCommand {
 
     private final NodeManager nodeManager;

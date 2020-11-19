@@ -1,11 +1,13 @@
 package org.apache.ignite.internal.v2.builtins.module;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.ignite.internal.v2.CliPathsConfigLoader;
 import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.AbstractCliCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
+@Singleton
 public class AddModuleCommand extends AbstractCliCommand {
 
     private final CliPathsConfigLoader cliPathsConfigLoader;

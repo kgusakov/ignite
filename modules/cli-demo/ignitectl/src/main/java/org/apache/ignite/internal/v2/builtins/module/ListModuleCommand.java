@@ -2,11 +2,13 @@ package org.apache.ignite.internal.v2.builtins.module;
 
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import com.mitchtalmadge.asciidata.table.ASCIITable;
 import org.apache.ignite.internal.v2.CliVersionInfo;
 import org.apache.ignite.internal.v2.AbstractCliCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
+@Singleton
 public class ListModuleCommand extends AbstractCliCommand {
 
     public void list() {

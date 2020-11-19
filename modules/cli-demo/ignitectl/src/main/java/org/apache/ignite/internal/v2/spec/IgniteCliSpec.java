@@ -17,21 +17,16 @@
 
 package org.apache.ignite.internal.v2.spec;
 
-import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.v2.CliPathsConfigLoader;
-import org.apache.ignite.internal.v2.CliVersionInfo;
 import org.apache.ignite.internal.v2.CommandFactory;
-import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.ErrorHandler;
 import org.apache.ignite.internal.v2.VersionProvider;
-import org.apache.ignite.internal.v2.builtins.node.NodeCommandSpec;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 import org.jline.reader.LineReader;
 import org.jline.reader.impl.LineReaderImpl;

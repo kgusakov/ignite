@@ -3,11 +3,13 @@ package org.apache.ignite.internal.v2.builtins.node;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.ignite.internal.v2.CliPathsConfigLoader;
 import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.AbstractCliCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
+@Singleton
 public class ListNodesCommand extends AbstractCliCommand {
 
     private final NodeManager nodeManager;
@@ -17,7 +19,7 @@ public class ListNodesCommand extends AbstractCliCommand {
     public ListNodesCommand(NodeManager nodeManager,
         CliPathsConfigLoader cliPathsConfigLoader) {
         this.nodeManager = nodeManager;
-        this.cliPathsConfigLoader =cliPathsConfigLoader;
+        this.cliPathsConfigLoader = cliPathsConfigLoader;
     }
 
     public void run() {

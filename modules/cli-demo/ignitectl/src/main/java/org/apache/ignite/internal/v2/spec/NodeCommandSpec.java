@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package org.apache.ignite.internal.v2.builtins.node;
+package org.apache.ignite.internal.v2.spec;
 
 import java.util.List;
 import javax.inject.Inject;
 import io.micronaut.context.ApplicationContext;
+import org.apache.ignite.internal.v2.builtins.node.ListNodesCommand;
+import org.apache.ignite.internal.v2.builtins.node.StartNodeCommand;
+import org.apache.ignite.internal.v2.builtins.node.StopNodeCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "node",
