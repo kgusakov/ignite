@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
 import io.micronaut.context.ApplicationContext;
+import org.apache.ignite.internal.v2.CliPathsConfigLoader;
 import org.apache.ignite.internal.v2.CliVersionInfo;
 import org.apache.ignite.internal.v2.CommandFactory;
 import org.apache.ignite.internal.v2.ErrorHandler;
@@ -85,9 +86,14 @@ public class ShellCommandSpec implements Runnable {
         }
         CommandLine cmd = new CommandLine(commands, factory);
         cmd.setExecutionExceptionHandler(new ErrorHandler());
-        loadSubcommands(cmd,
-            applicationContext.createBean(SystemPathResolver.class),
-            applicationContext.createBean(CliVersionInfo.class));
+
+        applicationContext.createBean(CliPathsConfigLoader.class)
+            .loadIgnitePathsConfig()
+            .ifPresent(ignitePaths -> loadSubcommands(
+                cmd,
+                ignitePaths.cliLibsDir()
+            ));
+
         PicocliCommands picocliCommands = new PicocliCommands(workDir(), cmd) {
             @Override public Object invoke(CommandSession ses, String cmd, Object... args) throws Exception {
                 return execute(ses, cmd, (String[])args);

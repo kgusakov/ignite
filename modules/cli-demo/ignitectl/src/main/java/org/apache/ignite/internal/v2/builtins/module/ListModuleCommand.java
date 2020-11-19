@@ -9,18 +9,6 @@ import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
 public class ListModuleCommand extends AbstractCliCommand {
 
-    private final MavenArtifactResolver mavenArtifactResolver;
-    private final SystemPathResolver pathResolver;
-    private final CliVersionInfo cliVersionInfo;
-
-    @Inject
-    public ListModuleCommand(MavenArtifactResolver mavenArtifactResolver, SystemPathResolver pathResolver, CliVersionInfo cliVersionInfo) {
-        this.mavenArtifactResolver = mavenArtifactResolver;
-        this.pathResolver = pathResolver;
-        this.cliVersionInfo = cliVersionInfo;
-    }
-
-
     public void list() {
         String[] headers = new String[] {"name", "description"};
 

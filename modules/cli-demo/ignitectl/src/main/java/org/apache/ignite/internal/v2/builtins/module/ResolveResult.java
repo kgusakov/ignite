@@ -27,7 +27,6 @@ public class ResolveResult {
     private List<Path> artifacts;
 
     public ResolveResult(List<Path> artifacts) {
-        System.out.println(artifacts);
         this.artifacts = artifacts;
     }
 

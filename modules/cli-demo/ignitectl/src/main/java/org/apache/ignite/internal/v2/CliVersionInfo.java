@@ -10,14 +10,12 @@ import io.micronaut.core.annotation.Introspected;
 @Introspected
 public class CliVersionInfo {
 
-    public final String groupId;
     public final String version;
 
     public CliVersionInfo() {
         try (InputStream inputStream = CliVersionInfo.class.getResourceAsStream("/version.properties")) {
             Properties prop = new Properties();
             prop.load(inputStream);
-            groupId = prop.getProperty("group.id", "undefined");
             version = prop.getProperty("version", "undefined");
         }
         catch (IOException e) {
@@ -25,8 +23,7 @@ public class CliVersionInfo {
         }
     }
 
-    public CliVersionInfo(String groupId, String artifactId, String version) {
-        this.groupId = groupId;
+    public CliVersionInfo(String version) {
         this.version = version;
     }
 }

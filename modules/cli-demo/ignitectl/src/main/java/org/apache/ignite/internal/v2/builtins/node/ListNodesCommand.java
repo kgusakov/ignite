@@ -3,26 +3,27 @@ package org.apache.ignite.internal.v2.builtins.node;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.CliPathsConfigLoader;
+import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.AbstractCliCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
 public class ListNodesCommand extends AbstractCliCommand {
 
     private final NodeManager nodeManager;
-    private final SystemPathResolver pathResolver;
+    private final CliPathsConfigLoader cliPathsConfigLoader;
 
     @Inject
     public ListNodesCommand(NodeManager nodeManager,
-        SystemPathResolver resolver) {
+        CliPathsConfigLoader cliPathsConfigLoader) {
         this.nodeManager = nodeManager;
-        pathResolver = resolver;
+        this.cliPathsConfigLoader =cliPathsConfigLoader;
     }
 
     public void run() {
-        Config config = Config.getConfigOrError(pathResolver);
-
-        List<String> pids = nodeManager.getRunningNodes(config).stream()
+        List<String> pids = nodeManager
+            .getRunningNodes(cliPathsConfigLoader.loadIgnitePathsOrThrowError().cliPidsDir())
+            .stream()
             .map(rn -> rn.pid + "\t" + rn.consistentId)
             .collect(Collectors.toList());
 

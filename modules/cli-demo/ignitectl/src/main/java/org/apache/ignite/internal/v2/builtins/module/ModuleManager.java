@@ -12,7 +12,7 @@ import javax.inject.Singleton;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
-import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.CliVersionInfo;
 
@@ -22,7 +22,6 @@ public class ModuleManager {
     private List<StandardModuleDefinition> modules;
     private MavenArtifactResolver mavenArtifactResolver;
     private CliVersionInfo cliVersionInfo;
-    private PrintWriter out;
     private ModuleStorage moduleStorage;
 
     public ModuleManager(List<StandardModuleDefinition> modules) {
@@ -45,7 +44,6 @@ public class ModuleManager {
     }
 
     public void setOut(PrintWriter out) {
-        this.out = out;
         mavenArtifactResolver.setOut(out);
     }
 
@@ -53,12 +51,12 @@ public class ModuleManager {
         return new ModuleManager(readBuiltinModules());
     }
 
-    public void addModule(String name, Config config, boolean cli) {
+    public void addModule(String name, IgnitePaths ignitePaths, boolean cli) {
         Path installPath;
         if (cli)
-            installPath = config.cliLibsDir(cliVersionInfo.version);
+            installPath = ignitePaths.cliLibsDir();
         else
-            installPath = config.libsDir(cliVersionInfo.version);
+            installPath = ignitePaths.libsDir();
         if (name.startsWith("mvn:")) {
             MavenCoordinates mavenCoordinates = MavenCoordinates.of(name);
 
@@ -94,7 +92,7 @@ public class ModuleManager {
                 MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, cliVersionInfo.version);
                 try {
                     libsResolveResults.add(mavenArtifactResolver.resolve(
-                        config.libsDir(cliVersionInfo.version),
+                        ignitePaths.libsDir(),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
                         mavenCoordinates.version
@@ -110,7 +108,7 @@ public class ModuleManager {
                 MavenCoordinates mavenCoordinates = MavenCoordinates.of(artifact, cliVersionInfo.version);
                 try {
                     cliResolvResults.add(mavenArtifactResolver.resolve(
-                        config.cliLibsDir(cliVersionInfo.version),
+                        ignitePaths.cliLibsDir(),
                         mavenCoordinates.groupId,
                         mavenCoordinates.artifactId,
                         mavenCoordinates.version

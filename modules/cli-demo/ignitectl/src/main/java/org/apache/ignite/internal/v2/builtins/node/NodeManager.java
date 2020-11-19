@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.ignite.internal.v2.CliVersionInfo;
-import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.builtins.module.ModuleStorage;
 
@@ -21,19 +21,16 @@ public class NodeManager {
 
     public static final String MAIN_CLASS = "org.apache.ignite.startup.cmdline.CommandLineStartup";
 
-    private final CliVersionInfo cliVersionInfo;
     private final ModuleStorage moduleStorage;
 
     @Inject
-    public NodeManager(
-        CliVersionInfo cliVersionInfo, ModuleStorage moduleStorage) {
-        this.cliVersionInfo = cliVersionInfo;
+    public NodeManager(ModuleStorage moduleStorage) {
         this.moduleStorage = moduleStorage;
     }
 
-    public long start(String consistentId, Config config) {
+    public long start(String consistentId, Path workDir, Path pidsDir) {
         try {
-            Path logFile = config.workDir.resolve(consistentId + ".log");
+            Path logFile = workDir.resolve(consistentId + ".log");
             if (Files.exists(logFile))
                 Files.delete(logFile);
 
@@ -41,13 +38,13 @@ public class NodeManager {
 
             ProcessBuilder pb = new ProcessBuilder("java",
                 "-DIGNITE_OVERRIDE_CONSISTENT_ID=" + consistentId,
-                "-cp", classpath(config.libsDir(cliVersionInfo.version)),
+                "-cp", classpath(),
                 MAIN_CLASS, "config/default-config.xml"
             )
                 .redirectError(logFile.toFile())
                 .redirectOutput(logFile.toFile());
             Process p = pb.start();
-            createPidFile(consistentId, p.pid(), config);
+            createPidFile(consistentId, p.pid(), pidsDir);
             return p.pid();
         }
         catch (IOException e) {
@@ -55,21 +52,20 @@ public class NodeManager {
         }
     }
 
-    public String classpath(Path dir) throws IOException {
+    public String classpath() throws IOException {
         return moduleStorage.listInstalled().modules.stream()
             .flatMap(m -> m.artifacts.stream())
             .map(m -> m.toAbsolutePath().toString())
             .collect(Collectors.joining(":"));
     }
 
-    public void createPidFile(String consistentId, long pid, Config config) {
-        Path dir = config.cliPidsDir();
-        if (!Files.exists(dir)) {
-            if (!dir.toFile().mkdirs())
-                throw new IgniteCLIException("Can't create directory for storing the process pids: " + dir);
+    public void createPidFile(String consistentId, long pid,Path pidsDir) {
+        if (!Files.exists(pidsDir)) {
+            if (!pidsDir.toFile().mkdirs())
+                throw new IgniteCLIException("Can't create directory for storing the process pids: " + pidsDir);
         }
 
-        Path pidPath = dir.resolve(consistentId + "_" + System.currentTimeMillis() + ".pid");
+        Path pidPath = pidsDir.resolve(consistentId + "_" + System.currentTimeMillis() + ".pid");
 
         try (FileWriter fileWriter = new FileWriter(pidPath.toFile())) {
             fileWriter.write(String.valueOf(pid));
@@ -79,10 +75,9 @@ public class NodeManager {
         }
     }
 
-    public List<RunningNode> getRunningNodes(Config config) {
-        Path dir = config.cliPidsDir();
-        if (Files.exists(dir)) {
-            try (Stream<Path> files = Files.find(dir, 1, (f, attrs) ->  f.getFileName().toString().endsWith(".pid"))) {
+    public List<RunningNode> getRunningNodes(Path pidsDir) {
+        if (Files.exists(pidsDir)) {
+            try (Stream<Path> files = Files.find(pidsDir, 1, (f, attrs) ->  f.getFileName().toString().endsWith(".pid"))) {
                     return files
                     .map(f -> {
                         long pid = 0;
@@ -105,17 +100,16 @@ public class NodeManager {
                     .map(Optional::get).collect(Collectors.toList());
             }
             catch (IOException e) {
-                throw new IgniteCLIException("Can't find directory with pid files for running nodes " + dir);
+                throw new IgniteCLIException("Can't find directory with pid files for running nodes " + pidsDir);
             }
         }
         else
             return Collections.emptyList();
     }
 
-    public boolean stopWait(String consistentId, Config config) {
-        Path dir = config.cliPidsDir();
-        if (Files.exists(dir)) {
-            try(Stream<Path> files = Files.find(dir, 1, (f, attrs) -> f.getFileName().toString().startsWith(consistentId))) {
+    public boolean stopWait(String consistentId, Path pidsDir) {
+        if (Files.exists(pidsDir)) {
+            try(Stream<Path> files = Files.find(pidsDir, 1, (f, attrs) -> f.getFileName().toString().startsWith(consistentId))) {
                 // TODO: dirty way to handle the problem
                 return files.map(f -> {
                     try {
@@ -130,7 +124,7 @@ public class NodeManager {
                 }).reduce((a, b) -> a && b).orElse(false);
             }
             catch (IOException e) {
-                throw new IgniteCLIException("Can't open directory with pid files " + dir);
+                throw new IgniteCLIException("Can't open directory with pid files " + pidsDir);
             }
         }
         else

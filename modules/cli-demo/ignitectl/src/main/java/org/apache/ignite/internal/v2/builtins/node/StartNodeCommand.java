@@ -1,28 +1,28 @@
 package org.apache.ignite.internal.v2.builtins.node;
 
 import javax.inject.Inject;
+import org.apache.ignite.internal.v2.CliPathsConfigLoader;
 import org.apache.ignite.internal.v2.CliVersionInfo;
-import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.AbstractCliCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
-import picocli.CommandLine;
 
 public class StartNodeCommand extends AbstractCliCommand {
 
-    private final CliVersionInfo cliVersionInfo;
-    private final SystemPathResolver pathResolver;
+    private final CliPathsConfigLoader cliPathsConfigLoader;
     private final NodeManager nodeManager;
 
     @Inject
-    public StartNodeCommand(CliVersionInfo cliVersionInfo, SystemPathResolver pathResolver, NodeManager nodeManager) {
-        this.cliVersionInfo = cliVersionInfo;
-        this.pathResolver = pathResolver;
+    public StartNodeCommand(
+        CliPathsConfigLoader cliPathsConfigLoader,
+        NodeManager nodeManager) {
+        this.cliPathsConfigLoader = cliPathsConfigLoader;
         this.nodeManager = nodeManager;
     }
 
     public void start(String consistentId) {
-        Config config = Config.getConfigOrError(pathResolver);
-        long pid = nodeManager.start(consistentId, config);
+        IgnitePaths ignitePaths = cliPathsConfigLoader.loadIgnitePathsOrThrowError();
+        long pid = nodeManager.start(consistentId, ignitePaths.workDir, ignitePaths.cliPidsDir());
 
         out.println("Started ignite node '" + consistentId + "'");
     }

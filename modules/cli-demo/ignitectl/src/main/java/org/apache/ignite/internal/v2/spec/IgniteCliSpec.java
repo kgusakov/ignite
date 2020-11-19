@@ -20,13 +20,15 @@ package org.apache.ignite.internal.v2.spec;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.cli.common.IgniteCommand;
+import org.apache.ignite.internal.v2.CliPathsConfigLoader;
 import org.apache.ignite.internal.v2.CliVersionInfo;
 import org.apache.ignite.internal.v2.CommandFactory;
-import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.ErrorHandler;
 import org.apache.ignite.internal.v2.VersionProvider;
 import org.apache.ignite.internal.v2.builtins.node.NodeCommandSpec;
@@ -61,9 +63,13 @@ public class IgniteCliSpec implements Runnable {
             .setExecutionExceptionHandler(new ErrorHandler())
             .addSubcommand(applicationContext.createBean(ShellCommandSpec.class));
 
-        loadSubcommands(cli,
-            applicationContext.createBean(SystemPathResolver.class),
-            applicationContext.createBean(CliVersionInfo.class));
+        applicationContext.createBean(CliPathsConfigLoader.class)
+            .loadIgnitePathsConfig()
+            .ifPresent(ignitePaths -> loadSubcommands(
+                cli,
+                ignitePaths.cliLibsDir()
+            ));
+
         System.exit(cli.execute(args));
     }
 
@@ -75,11 +81,8 @@ public class IgniteCliSpec implements Runnable {
         this.reader = (LineReaderImpl) reader;
     }
 
-    public static void loadSubcommands(CommandLine commandLine, SystemPathResolver pathResolver, CliVersionInfo cliVersionInfo) {
-        Optional<File> configOpt = Config.searchConfigPath(pathResolver);
-        if (configOpt.isPresent()) {
-            Config cfg = Config.readConfigFile(configOpt.get());
-            URL[] urls = SystemPathResolver.list(cfg.cliLibsDir(cliVersionInfo.version));
+    public static void loadSubcommands(CommandLine commandLine, Path cliLibsDir) {
+            URL[] urls = SystemPathResolver.list(cliLibsDir);
             ClassLoader classLoader = new URLClassLoader(urls,
                 IgniteCliSpec.class.getClassLoader());
             ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class, classLoader);
@@ -87,16 +90,5 @@ public class IgniteCliSpec implements Runnable {
             for (IgniteCommand igniteCommand: loader) {
                 commandLine.addSubcommand(igniteCommand);
             }
-
-        }
-        else {
-            ServiceLoader<IgniteCommand> loader = ServiceLoader.load(IgniteCommand.class);
-            loader.reload();
-            for (IgniteCommand igniteCommand : loader) {
-                commandLine.addSubcommand(igniteCommand);
-            }
-
-        }
-
     }
 }

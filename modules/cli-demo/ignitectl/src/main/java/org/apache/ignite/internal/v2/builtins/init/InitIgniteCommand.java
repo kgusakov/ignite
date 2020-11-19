@@ -7,8 +7,9 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 import javax.inject.Inject;
+import org.apache.ignite.internal.v2.CliPathsConfigLoader;
 import org.apache.ignite.internal.v2.CliVersionInfo;
-import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.AbstractCliCommand;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
@@ -20,68 +21,66 @@ public class InitIgniteCommand extends AbstractCliCommand {
     private final SystemPathResolver pathResolver;
     private final CliVersionInfo cliVersionInfo;
     private final ModuleManager moduleManager;
+    private final CliPathsConfigLoader cliPathsConfigLoader;
 
     @Inject
     public InitIgniteCommand(SystemPathResolver pathResolver, CliVersionInfo cliVersionInfo,
-        ModuleManager moduleManager) {
+        ModuleManager moduleManager, CliPathsConfigLoader cliPathsConfigLoader) {
         this.pathResolver = pathResolver;
         this.cliVersionInfo = cliVersionInfo;
         this.moduleManager = moduleManager;
+        this.cliPathsConfigLoader = cliPathsConfigLoader;
     }
 
     public void run() {
         moduleManager.setOut(out);
-        out.println("Init ignite directories...");
-        Config config = initDirectories();
-        out.println("Download and install current ignite version...");
-        installIgnite(config);
-        out.println();
-        out.println("Apache Ignite version " + cliVersionInfo.version + " sucessfully installed");
+        if (!cliPathsConfigLoader.loadIgnitePathsConfig().isPresent()) {
+            out.println("Init ignite directories...");
+            IgnitePaths ignitePaths = initDirectories();
+            out.println("Download and install current ignite version...");
+            installIgnite(ignitePaths);
+            out.println();
+            out.println("Apache Ignite version " + cliVersionInfo.version + " sucessfully installed");
+        } else
+            out.println("Apache Ignite was initialized earlier");
     }
 
-    private Config initDirectories() {
-        File configFile = initConfigFile();
-        Config cfg = Config.readConfigFile(configFile);
+    private IgnitePaths initDirectories() {
+        initConfigFile();
+        IgnitePaths cfg = cliPathsConfigLoader.loadIgnitePathsOrThrowError();
 
         File igniteWork = cfg.workDir.toFile();
         if (!(igniteWork.exists() || igniteWork.mkdirs()))
             throw new IgniteCLIException("Can't create working directory: " + cfg.workDir);
 
-
-        File igniteBin =  cfg.libsDir(cliVersionInfo.version).toFile();
+        File igniteBin = cfg.libsDir().toFile();
         if (!(igniteBin.exists() || igniteBin.mkdirs()))
-            throw new IgniteCLIException("Can't create a directory for ignite modules: " + cfg.libsDir(cliVersionInfo.version));
+            throw new IgniteCLIException("Can't create a directory for ignite modules: " + cfg.libsDir());
 
-        File igniteBinCli = cfg.cliLibsDir(cliVersionInfo.version).toFile();
+        File igniteBinCli = cfg.cliLibsDir().toFile();
         if (!(igniteBinCli.exists() || igniteBinCli.mkdirs()))
-            throw new IgniteCLIException("Can't create a directory for cli modules: " + cfg.cliLibsDir(cliVersionInfo.version));
+            throw new IgniteCLIException("Can't create a directory for cli modules: " + cfg.cliLibsDir());
 
         return cfg;
-
     }
 
-    private void installIgnite(Config config) {
-        moduleManager.addModule("server", config, false);
+    private void installIgnite(IgnitePaths ignitePaths) {
+        moduleManager.addModule("server", ignitePaths, false);
     }
 
     private File initConfigFile() {
-        Optional<File> configFile = Config.searchConfigPath(pathResolver);
-        if (!configFile.isPresent()) {
-            Path newCfgPath = pathResolver.osHomeDirectoryPath().resolve(".ignitecfg");
-            File newCfgFile = newCfgPath.toFile();
-            try {
-                newCfgFile.createNewFile();
-                Path binDir = pathResolver.osCurrentDirPath().resolve("ignite-bin");
-                Path workDir = pathResolver.osCurrentDirPath().resolve("ignite-work");
-                fillNewConfigFile(newCfgFile, binDir, workDir);
-                return newCfgFile;
-            }
-            catch (IOException e) {
-                throw new IgniteCLIException("Can't create configuration file in current directory: " + newCfgPath);
-            }
+        Path newCfgPath = pathResolver.osHomeDirectoryPath().resolve(".ignitecfg");
+        File newCfgFile = newCfgPath.toFile();
+        try {
+            newCfgFile.createNewFile();
+            Path binDir = pathResolver.osCurrentDirPath().resolve("ignite-bin");
+            Path workDir = pathResolver.osCurrentDirPath().resolve("ignite-work");
+            fillNewConfigFile(newCfgFile, binDir, workDir);
+            return newCfgFile;
         }
-        else
-            return configFile.get();
+        catch (IOException e) {
+            throw new IgniteCLIException("Can't create configuration file in current directory: " + newCfgPath);
+        }
     }
 
     private void fillNewConfigFile(File f, @NotNull Path binDir, @NotNull Path workDir) {

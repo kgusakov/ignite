@@ -11,21 +11,22 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.ignite.internal.v2.Config;
+import org.apache.ignite.internal.v2.CliPathsConfigLoader;
+import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.builtins.SystemPathResolver;
 
 @Singleton
 public class ModuleStorage {
 
-    private final SystemPathResolver pathResolver;
+    private final CliPathsConfigLoader cliPathsConfigLoader;
 
     @Inject
-    public ModuleStorage(SystemPathResolver pathResolver) {
-        this.pathResolver = pathResolver;
+    public ModuleStorage(CliPathsConfigLoader cliPathsConfigLoader) {
+        this.cliPathsConfigLoader = cliPathsConfigLoader;
     }
 
     private Path moduleFile() {
-        return Config.getConfigOrError(pathResolver).installedModulesFile();
+        return cliPathsConfigLoader.loadIgnitePathsOrThrowError().installedModulesFile();
     }
 
     public void saveModule(ModuleDefinition moduleDefinition) throws IOException {
