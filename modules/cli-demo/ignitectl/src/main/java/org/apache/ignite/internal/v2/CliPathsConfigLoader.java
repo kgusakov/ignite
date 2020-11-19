@@ -38,16 +38,6 @@ public class CliPathsConfigLoader {
             throw new IgniteCLIException("To execute node module/node management commands you must run 'init' first");
     }
 
-    public IgnitePaths loadIgnitePathsOrCreate() {
-        Optional<IgnitePaths> ignitePaths = loadIgnitePathsConfig();
-        if (ignitePaths.isPresent())
-            return ignitePaths.get();
-        else {
-
-        }
-            throw new IgniteCLIException("To execute node module/node management commands you must run 'init' first");
-    }
-
     private  static Optional<File> searchConfigPathsFile(SystemPathResolver pathResolver) {
         File homeDirCfg = pathResolver.osHomeDirectoryPath().resolve(".ignitecfg").toFile();
         if (homeDirCfg.exists())
