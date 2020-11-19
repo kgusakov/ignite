@@ -63,7 +63,7 @@ public class NodeCommandSpec implements Runnable {
         @Inject
         private ApplicationContext applicationContext;
 
-        @CommandLine.Parameters(paramLabel = "consistend-ids", description = "consistent ids of nodes to start")
+        @CommandLine.Parameters(paramLabel = "consistent-ids", description = "consistent ids of nodes to start")
         public List<String> pids;
 
         @Override public void run() {
