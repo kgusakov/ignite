@@ -54,17 +54,22 @@ import org.slf4j.LoggerFactory;
 public class MavenArtifactResolver {
 
     private final SystemPathResolver pathResolver;
-    private final Ivy ivy;
+    private Ivy _ivy;
     private PrintWriter out;
 
     @Inject
     public MavenArtifactResolver(SystemPathResolver pathResolver) {
         this.pathResolver = pathResolver;
-        this.ivy = ivyInstance();
     }
 
     public void setOut(PrintWriter out) {
         this.out = out;
+    }
+
+    private Ivy ivy() {
+        if (_ivy == null)
+            _ivy = ivyInstance();
+        return _ivy;
     }
 
     public ResolveResult resolve(
@@ -89,7 +94,7 @@ public class MavenArtifactResolver {
 
         try {
             // now resolve
-            ResolveReport rr = ivy.resolve(md,ro);
+            ResolveReport rr = ivy().resolve(md,ro);
 
             if (rr.hasError())
                 throw new IgniteCLIException(rr.getAllProblemMessages().toString());
@@ -97,7 +102,7 @@ public class MavenArtifactResolver {
             // Step 2: retrieve
             ModuleDescriptor m = rr.getModuleDescriptor();
 
-            RetrieveReport retrieveReport = ivy.retrieve(
+            RetrieveReport retrieveReport = ivy().retrieve(
                 m.getModuleRevisionId(),
                 new RetrieveOptions()
                     // this is from the envelop module

@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.apache.ignite.internal.v2.CliVersionInfo;
-import org.apache.ignite.internal.v2.IgnitePaths;
 import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.builtins.module.ModuleStorage;
 

@@ -5,12 +5,14 @@ import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.cli.common.IgniteCommand;
 import org.apache.ignite.internal.v2.builtins.module.AddModuleCommand;
 import org.apache.ignite.internal.v2.builtins.module.ListModuleCommand;
+import org.apache.ignite.internal.v2.builtins.module.RemoveModuleCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "module",
     description = "Manage Ignite modules",
     subcommands = {
         ModuleCommandSpec.AddModuleCommandSpec.class,
+        ModuleCommandSpec.RemoveModuleCommandSpec.class,
         ModuleCommandSpec.ListModuleCommandSpec.class})
 public class ModuleCommandSpec implements IgniteCommand, Runnable {
 
@@ -43,6 +45,28 @@ public class ModuleCommandSpec implements IgniteCommand, Runnable {
             addModuleCommand.setOut(spec.commandLine().getOut());
 
             addModuleCommand.addModule(moduleName, cli);
+        }
+    }
+
+    @CommandLine.Command(name = "remove",
+        description = "Remove Ignite or cli module by name")
+    public static class RemoveModuleCommandSpec implements Runnable {
+
+        @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+
+        @CommandLine.Parameters(paramLabel = "module",
+            description = "can be a 'builtin module name (see module list)'|'mvn:groupId:artifactId:version'")
+        public String moduleName;
+
+        @Inject
+        ApplicationContext applicationContext;
+
+
+        @Override public void run() {
+            RemoveModuleCommand removeModuleCommand = applicationContext.createBean(RemoveModuleCommand.class);
+            removeModuleCommand.setOut(spec.commandLine().getOut());
+
+            removeModuleCommand.removeModule(moduleName);
         }
     }
 

@@ -36,11 +36,12 @@ public class ModuleStorage {
         objectMapper.writeValue(moduleFile().toFile(), moduleDefinitionsRegistry);
     }
 
-    public void removeModule(String name) throws IOException {
+    public boolean removeModule(String name) throws IOException {
         ModuleDefinitionsRegistry moduleDefinitionsRegistry = listInstalled();
-        moduleDefinitionsRegistry.modules.removeIf(m -> m.name.equals(name));
+        boolean removed = moduleDefinitionsRegistry.modules.removeIf(m -> m.name.equals(name));
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(moduleFile().toFile(), moduleDefinitionsRegistry);
+        return removed;
     }
 
     public ModuleDefinitionsRegistry listInstalled() throws IOException {

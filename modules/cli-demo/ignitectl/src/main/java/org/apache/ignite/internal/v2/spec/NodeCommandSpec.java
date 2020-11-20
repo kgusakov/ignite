@@ -20,6 +20,7 @@ import java.util.List;
 import javax.inject.Inject;
 import io.micronaut.context.ApplicationContext;
 import org.apache.ignite.internal.v2.builtins.node.ListNodesCommand;
+import org.apache.ignite.internal.v2.builtins.node.NodesClasspathCommand;
 import org.apache.ignite.internal.v2.builtins.node.StartNodeCommand;
 import org.apache.ignite.internal.v2.builtins.node.StopNodeCommand;
 import picocli.CommandLine;
@@ -28,6 +29,7 @@ import picocli.CommandLine;
     description = "start|stop|list local nodes", subcommands = {
         NodeCommandSpec.StartNodeCommandSpec.class,
         NodeCommandSpec.StopNodeCommandSpec.class,
+        NodeCommandSpec.NodesClasspathCommandSpec.class,
         NodeCommandSpec.ListNodesCommandSpec.class})
 public class NodeCommandSpec implements Runnable {
 
@@ -90,6 +92,23 @@ public class NodeCommandSpec implements Runnable {
 
             listNodesCommand.setOut(spec.commandLine().getOut());
             listNodesCommand.run();
+
+        }
+    }
+
+    @CommandLine.Command(name = "classpath", description = "Show current classpath for new nodes")
+    public static class NodesClasspathCommandSpec implements Runnable {
+
+        @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+
+        @Inject
+        private ApplicationContext applicationContext;
+
+        @Override public void run() {
+            NodesClasspathCommand classpathCommand = applicationContext.createBean(NodesClasspathCommand.class);
+
+            classpathCommand.setOut(spec.commandLine().getOut());
+            classpathCommand.run();
 
         }
     }

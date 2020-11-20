@@ -136,6 +136,16 @@ public class ModuleManager {
         }
     }
 
+    public boolean removeModule(String name) {
+        try {
+            return moduleStorage.removeModule(name);
+        }
+        catch (IOException e) {
+            throw new IgniteCLIException(
+                "Can't remove module " + name, e);
+        }
+    }
+
     private boolean isStandardModuleName(String name) {
         return modules.stream().anyMatch(m -> m.name.equals(name));
     }
