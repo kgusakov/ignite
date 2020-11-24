@@ -34,7 +34,8 @@ public class NodeManager {
 
             Files.createFile(logFile);
 
-            ProcessBuilder pb = new ProcessBuilder("java",
+            ProcessBuilder pb = new ProcessBuilder(
+                "java","-DIGNITE_HOME=" + workDir,
                 "-DIGNITE_OVERRIDE_CONSISTENT_ID=" + consistentId,
                 "-cp", classpath(),
                 MAIN_CLASS, serverConfig.toAbsolutePath().toString()
