@@ -78,6 +78,7 @@ public class MavenArtifactResolver {
         String artifactId,
         String version
     ) throws IOException {
+        ivy(); // needed for init right output logger before any operations
         out.print("Resolve artifact " + grpId + ":" +
             artifactId + ":" + version);
         ModuleDescriptor md = rootModuleDescriptor(grpId, artifactId, version);
