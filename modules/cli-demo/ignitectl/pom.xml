@@ -25,11 +25,11 @@
     <parent>
         <groupId>org.apache.ignite</groupId>
         <artifactId>ignite-cli-demo</artifactId>
-        <version>2.10.0-SNAPSHOT</version>
+        <version>2.9.0</version>
     </parent>
 
     <artifactId>ignitectl</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
+    <version>2.9.0</version>
     <url>http://ignite.apache.org</url>
     <name>ignitectl</name>
 
