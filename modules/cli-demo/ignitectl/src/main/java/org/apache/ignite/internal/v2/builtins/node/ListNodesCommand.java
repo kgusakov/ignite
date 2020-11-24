@@ -27,8 +27,9 @@ public class ListNodesCommand extends AbstractCliCommand {
     }
 
     public void run() {
+        IgnitePaths paths = cliPathsConfigLoader.loadIgnitePathsOrThrowError();
         List<NodeManager.RunningNode> nodes = nodeManager
-            .getRunningNodes(cliPathsConfigLoader.loadIgnitePathsOrThrowError().cliPidsDir());
+            .getRunningNodes(paths.workDir, paths.cliPidsDir());
 
         if (nodes.isEmpty())
             out.println("No running nodes");

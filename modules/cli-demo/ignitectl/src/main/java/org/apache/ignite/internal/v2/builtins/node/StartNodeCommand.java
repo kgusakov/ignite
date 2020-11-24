@@ -24,8 +24,9 @@ public class StartNodeCommand extends AbstractCliCommand {
 
     public void start(String consistentId) {
         IgnitePaths ignitePaths = cliPathsConfigLoader.loadIgnitePathsOrThrowError();
-        long pid = nodeManager.start(consistentId, ignitePaths.workDir, ignitePaths.cliPidsDir());
+        NodeManager.RunningNode node = nodeManager.start(consistentId, ignitePaths.workDir, ignitePaths.cliPidsDir());
 
-        out.println("Started ignite node '" + consistentId + "'");
+        out.println("Started ignite node.\nPID: " + node.pid +
+            "\nConsistent Id: " + node.consistentId + "\nLog file: " + node.logFile);
     }
 }

@@ -26,9 +26,9 @@ public class NodeManager {
         this.moduleStorage = moduleStorage;
     }
 
-    public long start(String consistentId, Path workDir, Path pidsDir) {
+    public RunningNode start(String consistentId, Path workDir, Path pidsDir) {
         try {
-            Path logFile = workDir.resolve(consistentId + ".log");
+            Path logFile = logFile(workDir, consistentId);
             if (Files.exists(logFile))
                 Files.delete(logFile);
 
@@ -43,7 +43,7 @@ public class NodeManager {
                 .redirectOutput(logFile.toFile());
             Process p = pb.start();
             createPidFile(consistentId, p.pid(), pidsDir);
-            return p.pid();
+            return new RunningNode(p.pid(), consistentId, logFile);
         }
         catch (IOException e) {
             throw new IgniteCLIException("Can't load classpath", e);
@@ -73,29 +73,29 @@ public class NodeManager {
         }
     }
 
-    public List<RunningNode> getRunningNodes(Path pidsDir) {
+    public List<RunningNode> getRunningNodes(Path worksDir, Path pidsDir) {
         if (Files.exists(pidsDir)) {
             try (Stream<Path> files = Files.find(pidsDir, 1, (f, attrs) ->  f.getFileName().toString().endsWith(".pid"))) {
                     return files
-                    .map(f -> {
-                        long pid = 0;
-                        try {
-                            pid = Long.parseLong(Files.readAllLines(f).get(0));
-                        }
-                        catch (IOException e) {
-                            throw new IgniteCLIException("Can't parse pid file " + f);
-                        }
-                        String filename = f.getFileName().toString();
-                        if (filename.lastIndexOf("_") == -1)
-                            return Optional.<RunningNode>empty();
-                        else {
-                            String consistentId = filename.substring(0, filename.lastIndexOf("_"));
-                            return Optional.of(new RunningNode(pid, consistentId));
-                        }
+                        .map(f -> {
+                            long pid = 0;
+                            try {
+                                pid = Long.parseLong(Files.readAllLines(f).get(0));
+                            }
+                            catch (IOException e) {
+                                throw new IgniteCLIException("Can't parse pid file " + f);
+                            }
+                            String filename = f.getFileName().toString();
+                            if (filename.lastIndexOf("_") == -1)
+                                return Optional.<RunningNode>empty();
+                            else {
+                                String consistentId = filename.substring(0, filename.lastIndexOf("_"));
+                                return Optional.of(new RunningNode(pid, consistentId, logFile(worksDir, consistentId)));
+                            }
 
-                    })
-                    .filter(Optional::isPresent)
-                    .map(Optional::get).collect(Collectors.toList());
+                        })
+                        .filter(Optional::isPresent)
+                        .map(Optional::get).collect(Collectors.toList());
             }
             catch (IOException e) {
                 throw new IgniteCLIException("Can't find directory with pid files for running nodes " + pidsDir);
@@ -107,19 +107,25 @@ public class NodeManager {
 
     public boolean stopWait(String consistentId, Path pidsDir) {
         if (Files.exists(pidsDir)) {
-            try(Stream<Path> files = Files.find(pidsDir, 1, (f, attrs) -> f.getFileName().toString().startsWith(consistentId))) {
-                // TODO: dirty way to handle the problem
-                return files.map(f -> {
-                    try {
-                        long pid = Long.parseLong(Files.readAllLines(f).get(0));
-                        boolean result = stopWait(pid);
-                        Files.delete(f);
-                        return result;
-                    }
-                    catch (IOException e) {
-                        throw new IgniteCLIException("Can't read pid file " + f);
-                    }
-                }).reduce((a, b) -> a && b).orElse(false);
+            try {
+                List<Path> files = Files.find(pidsDir, 1,
+                    (f, attrs) ->
+                        f.getFileName().toString().startsWith(consistentId + "_")).collect(Collectors.toList());
+                if (files.size() > 0) {
+                    return files.stream().map(f -> {
+                        try {
+                            long pid = Long.parseLong(Files.readAllLines(f).get(0));
+                            boolean result = stopWait(pid);
+                            Files.delete(f);
+                            return result;
+                        }
+                        catch (IOException e) {
+                            throw new IgniteCLIException("Can't read pid file " + f);
+                        }
+                    }).reduce((a, b) -> a && b).orElse(false);
+                }
+                else
+                    throw new IgniteCLIException("Can't find node with consistent id " + consistentId);
             }
             catch (IOException e) {
                 throw new IgniteCLIException("Can't open directory with pid files " + pidsDir);
@@ -135,15 +141,21 @@ public class NodeManager {
             .map(ProcessHandle::destroy)
             .orElse(false);
     }
+    
+    private static Path logFile(Path workDir, String consistentId) {
+          return workDir.resolve(consistentId + ".log");
+    }
 
     public static class RunningNode {
 
         public final long pid;
         public final String consistentId;
+        public final Path logFile;
 
-        public RunningNode(long pid, String consistentId) {
+        public RunningNode(long pid, String consistentId, Path logFile) {
             this.pid = pid;
             this.consistentId = consistentId;
+            this.logFile = logFile;
         }
     }
 }
