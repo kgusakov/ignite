@@ -100,11 +100,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.mitchtalmadge</groupId>
-            <artifactId>ascii-data</artifactId>
-            <version>1.4.0</version>
+            <groupId>com.github.freva</groupId>
+            <artifactId>ascii-table</artifactId>
+            <version>1.1.0</version>
         </dependency>
-
     </dependencies>
 
     <build>
