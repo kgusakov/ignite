@@ -30,7 +30,14 @@ public class IgnitePaths {
     public Path installedModulesFile() {
         return workDir.resolve("modules.json");
     }
+    
+    public Path serverConfigDir() {
+        return workDir.resolve("config");
+    }
 
+    public Path serverDefaultConfigFile() {
+        return serverConfigDir().resolve("config.xml");
+    }
 
 
 }

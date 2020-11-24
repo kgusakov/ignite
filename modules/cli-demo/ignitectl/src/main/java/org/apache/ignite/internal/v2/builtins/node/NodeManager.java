@@ -26,7 +26,7 @@ public class NodeManager {
         this.moduleStorage = moduleStorage;
     }
 
-    public RunningNode start(String consistentId, Path workDir, Path pidsDir) {
+    public RunningNode start(String consistentId, Path workDir, Path pidsDir, Path serverConfig) {
         try {
             Path logFile = logFile(workDir, consistentId);
             if (Files.exists(logFile))
@@ -37,7 +37,7 @@ public class NodeManager {
             ProcessBuilder pb = new ProcessBuilder("java",
                 "-DIGNITE_OVERRIDE_CONSISTENT_ID=" + consistentId,
                 "-cp", classpath(),
-                MAIN_CLASS, "config/default-config.xml"
+                MAIN_CLASS, serverConfig.toAbsolutePath().toString()
             )
                 .redirectError(logFile.toFile())
                 .redirectOutput(logFile.toFile());

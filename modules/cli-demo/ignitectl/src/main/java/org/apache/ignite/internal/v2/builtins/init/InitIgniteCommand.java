@@ -3,7 +3,9 @@ package org.apache.ignite.internal.v2.builtins.init;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Properties;
 import javax.inject.Inject;
@@ -40,6 +42,8 @@ public class InitIgniteCommand extends AbstractCliCommand {
             IgnitePaths ignitePaths = initDirectories();
             out.println("Download and install current ignite version...");
             installIgnite(ignitePaths);
+            out.println("Init default Ignite configs");
+            initDefaultServerConfigs();
             out.println();
             out.println("Apache Ignite version " + cliVersionInfo.version + " sucessfully installed");
         } else {
@@ -48,6 +52,24 @@ public class InitIgniteCommand extends AbstractCliCommand {
                 "Configuration file: " + cliPathsConfigLoader.searchConfigPathsFile().get() + "\n" +
                 "Ignite binaries dir: " + cfg.binDir + "\n" +
                 "Ignite work dir: " + cfg.workDir);
+        }
+    }
+
+    private void initDefaultServerConfigs() {
+        Path serverCfgFile = cliPathsConfigLoader.loadIgnitePathsOrThrowError().serverDefaultConfigFile();
+        try {
+            Files.createFile(serverCfgFile);
+            Files.write(serverCfgFile, Collections.singleton("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" +
+                "       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "       xsi:schemaLocation=\"\n" +
+                "       http://www.springframework.org/schema/beans\n" +
+                "       http://www.springframework.org/schema/beans/spring-beans.xsd\">\n" +
+                "    <bean id=\"grid.cfg\" class=\"org.apache.ignite.configuration.IgniteConfiguration\"/>\n" +
+                "</beans>"));
+        }
+        catch (IOException e) {
+            throw new IgniteCLIException("Can't create default config file for server");
         }
     }
 
@@ -69,6 +91,10 @@ public class InitIgniteCommand extends AbstractCliCommand {
         File igniteBinCli = cfg.cliLibsDir().toFile();
         if (!(igniteBinCli.exists() || igniteBinCli.mkdirs()))
             throw new IgniteCLIException("Can't create a directory for cli modules: " + cfg.cliLibsDir());
+        
+        File serverConfig = cfg.serverConfigDir().toFile();
+        if (!(serverConfig.exists() || serverConfig.mkdirs()))
+            throw new IgniteCLIException("Can't create a directory for server configs: " + cfg.serverConfigDir());
 
         return cfg;
     }
