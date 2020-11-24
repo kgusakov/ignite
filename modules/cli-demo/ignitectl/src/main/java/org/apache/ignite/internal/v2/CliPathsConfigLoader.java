@@ -26,7 +26,7 @@ public class CliPathsConfigLoader {
     }
 
     public Optional<IgnitePaths> loadIgnitePathsConfig() {
-        return searchConfigPathsFile(pathResolver)
+        return searchConfigPathsFile()
             .map(f -> CliPathsConfigLoader.readConfigFile(f, version));
     }
 
@@ -38,7 +38,7 @@ public class CliPathsConfigLoader {
             throw new IgniteCLIException("To execute node module/node management commands you must run 'init' first");
     }
 
-    private  static Optional<File> searchConfigPathsFile(SystemPathResolver pathResolver) {
+    public Optional<File> searchConfigPathsFile() {
         File homeDirCfg = pathResolver.osHomeDirectoryPath().resolve(".ignitecfg").toFile();
         if (homeDirCfg.exists())
             return Optional.of(homeDirCfg);
