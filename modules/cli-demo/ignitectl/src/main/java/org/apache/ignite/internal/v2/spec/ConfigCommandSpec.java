@@ -1,21 +1,13 @@
 package org.apache.ignite.internal.v2.spec;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import org.apache.ignite.internal.v2.IgniteCLIException;
 import org.apache.ignite.internal.v2.builtins.config.ConfigurationClient;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "config", mixinStandardHelpOptions = true,
     description = "Show/change node configurations",
     subcommands = {
-        ConfigCommandSpec.GetConfigCommandSpec.class
+        ConfigCommandSpec.GetConfigCommandSpec.class,
+        ConfigCommandSpec.SetConfigCommandSpec.class
     })
 public class ConfigCommandSpec implements Runnable {
 
@@ -33,6 +25,20 @@ public class ConfigCommandSpec implements Runnable {
 
         @Override public void run() {
             spec.commandLine().getOut().println(new ConfigurationClient().get());
+        }
+    }
+
+    @CommandLine.Command(name = "set", mixinStandardHelpOptions = true,
+        description = "Set current cluster configs. Config is expected as any valid Hocon")
+    public static class SetConfigCommandSpec implements Runnable {
+
+        @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+
+        @CommandLine.Parameters(paramLabel = "hocon-string", description = "any text representation of hocon config")
+        private String config;
+
+        @Override public void run() {
+            spec.commandLine().getOut().println(new ConfigurationClient().set(config));
         }
     }
 }
