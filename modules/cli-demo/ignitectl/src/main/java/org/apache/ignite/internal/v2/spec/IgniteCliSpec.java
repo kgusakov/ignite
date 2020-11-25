@@ -44,6 +44,7 @@ import picocli.CommandLine;
         NodeCommandSpec.class,
         ModuleCommandSpec.class,
         InitIgniteCommandSpec.class,
+        ConfigCommandSpec.class,
         BaselineCommandSpec.class,
     }
 )
