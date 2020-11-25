@@ -58,7 +58,7 @@ public class ConfigurationManager {
         }
 
         public ConfigurationManager build() throws IOException {
-            Path modulesConfFile = libsRoot.resolve("modules.conf");
+            Path modulesConfFile = libsRoot.resolve("builtin_modules.conf");
             Path classpathFile = libsRoot.resolve("classpath.conf");
 
             Set<String> fragments = new HashSet<>();

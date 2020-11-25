@@ -58,15 +58,7 @@ public class InitIgniteCommand extends AbstractCliCommand {
     private void initDefaultServerConfigs() {
         Path serverCfgFile = cliPathsConfigLoader.loadIgnitePathsOrThrowError().serverDefaultConfigFile();
         try {
-            Files.createFile(serverCfgFile);
-            Files.write(serverCfgFile, Collections.singleton("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" +
-                "       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "       xsi:schemaLocation=\"\n" +
-                "       http://www.springframework.org/schema/beans\n" +
-                "       http://www.springframework.org/schema/beans/spring-beans.xsd\">\n" +
-                "    <bean id=\"grid.cfg\" class=\"org.apache.ignite.configuration.IgniteConfiguration\"/>\n" +
-                "</beans>"));
+            Files.copy(InitIgniteCommand.class.getResourceAsStream("/default-config.xml"), serverCfgFile);
         }
         catch (IOException e) {
             throw new IgniteCLIException("Can't create default config file for server");

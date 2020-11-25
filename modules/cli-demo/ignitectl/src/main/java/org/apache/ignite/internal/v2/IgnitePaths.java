@@ -36,7 +36,7 @@ public class IgnitePaths {
     }
 
     public Path serverDefaultConfigFile() {
-        return serverConfigDir().resolve("config.xml");
+        return serverConfigDir().resolve("default-config.xml");
     }
 
 

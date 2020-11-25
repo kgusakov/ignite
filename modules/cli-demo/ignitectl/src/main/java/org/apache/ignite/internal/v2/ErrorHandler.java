@@ -11,10 +11,9 @@ public class ErrorHandler implements CommandLine.IExecutionExceptionHandler {
         CommandLine.ParseResult parseResult) throws Exception {
         if (ex instanceof IgniteCLIException)
             cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
-        else {
-            cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+        else
             logger.error("", ex);
-        }
+
         return cmd.getExitCodeExceptionMapper() != null
             ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
             : cmd.getCommandSpec().exitCodeOnExecutionException();

@@ -153,7 +153,7 @@ public class ModuleManager {
 
 
     public static List<StandardModuleDefinition> readBuiltinModules() {
-        com.typesafe.config.ConfigObject config = ConfigFactory.load("modules.conf").getObject("modules");
+        com.typesafe.config.ConfigObject config = ConfigFactory.load("builtin_modules.conf").getObject("modules");
         List<StandardModuleDefinition> modules = new ArrayList<>();
         for (Map.Entry<String, ConfigValue> entry: config.entrySet()) {
             ConfigObject configObject = (ConfigObject) entry.getValue();
