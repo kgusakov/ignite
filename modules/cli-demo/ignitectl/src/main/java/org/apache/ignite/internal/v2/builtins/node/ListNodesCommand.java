@@ -36,7 +36,9 @@ public class ListNodesCommand extends AbstractCliCommand {
         else {
             String table = AsciiTable.getTable(nodes, Arrays.asList(
                 new Column().header("PID").dataAlign(HorizontalAlign.LEFT).with(n -> String.valueOf(n.pid)),
-                new Column().header("Consistent Id").dataAlign(HorizontalAlign.LEFT).with(n -> n.consistentId)
+                new Column().header("Consistent Id").dataAlign(HorizontalAlign.LEFT).with(n -> n.consistentId),
+                new Column().header("Log").maxColumnWidth(Integer.MAX_VALUE).dataAlign(HorizontalAlign.LEFT)
+                    .with(n -> n.logFile.toString())
             ));
             out.println(table);
         }
