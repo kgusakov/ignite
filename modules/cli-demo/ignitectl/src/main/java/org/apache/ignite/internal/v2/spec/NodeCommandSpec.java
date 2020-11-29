@@ -37,7 +37,7 @@ public class NodeCommandSpec implements Runnable {
 
 
     @Override public void run() {
-        throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
+        spec.commandLine().usage(spec.commandLine().getOut());
     }
 
     @CommandLine.Command(name = "start", description = "Start Ignite node")

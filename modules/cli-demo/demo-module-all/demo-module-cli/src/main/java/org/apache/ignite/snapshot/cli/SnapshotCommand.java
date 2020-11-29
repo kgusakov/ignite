@@ -15,7 +15,7 @@ public class SnapshotCommand implements IgniteCommand, Runnable {
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     @Override public void run() {
-        throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
+        spec.commandLine().usage(spec.commandLine().getOut());
     }
 
     @CommandLine.Command(

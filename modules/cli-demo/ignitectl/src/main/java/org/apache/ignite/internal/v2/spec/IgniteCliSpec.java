@@ -70,7 +70,7 @@ public class IgniteCliSpec implements Runnable {
     }
 
     @Override public void run() {
-        throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
+        spec.commandLine().usage(spec.commandLine().getOut());
     }
 
     public void setReader(LineReader reader){
