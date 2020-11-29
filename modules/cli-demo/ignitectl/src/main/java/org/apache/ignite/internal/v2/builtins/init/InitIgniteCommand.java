@@ -92,7 +92,7 @@ public class InitIgniteCommand extends AbstractCliCommand {
     }
 
     private void installIgnite(IgnitePaths ignitePaths) {
-        moduleManager.addModule("server", ignitePaths, false);
+        moduleManager.addModule("_server", ignitePaths, false);
     }
 
     private File initConfigFile() {

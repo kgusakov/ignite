@@ -24,6 +24,8 @@ public class ModuleManager {
     private final CliVersionInfo cliVersionInfo;
     private final ModuleStorage moduleStorage;
 
+    public static final String INTERNAL_MODULE_PREFIX = "_";
+
     @Inject
     public ModuleManager(MavenArtifactResolver mavenArtifactResolver, CliVersionInfo cliVersionInfo,
         ModuleStorage moduleStorage) {
