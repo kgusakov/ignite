@@ -28,9 +28,10 @@ public class ModuleCommandSpec implements IgniteCommand, Runnable {
 
         @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
-        @CommandLine.Option(names = {"--cli"},
-            description = "set if you want to install cli module")
-        public boolean cli;
+        // TODO: we need to think about the 3d party modules with cli commands
+//        @CommandLine.Option(names = {"--cli"},
+//            description = "set if you want to install cli module")
+//        public boolean cli;
 
         @CommandLine.Parameters(paramLabel = "module",
             description = "can be a 'builtin module name (see module list)'|'mvn:groupId:artifactId:version'")
@@ -44,7 +45,7 @@ public class ModuleCommandSpec implements IgniteCommand, Runnable {
             AddModuleCommand addModuleCommand = applicationContext.createBean(AddModuleCommand.class);
             addModuleCommand.setOut(spec.commandLine().getOut());
 
-            addModuleCommand.addModule(moduleName, cli);
+            addModuleCommand.addModule(moduleName, false);
         }
     }
 
